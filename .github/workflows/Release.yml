@@ -17,7 +17,7 @@ on:
                 required: false
 
 env:
-    uniqueWorkspaceId: /u/github/workspace/${{ github.repository }}/${{ github.ref_name }}/build_r${{github.run_number }} # adding an r to before the number,
+    uniqueWorkspaceId: /usr/local/sandboxes/bank-of-z/pipeline/${{ github.repository }}/${{ github.ref_name }}/build_r${{github.run_number }} # adding an r to before the number,
     # to avoid an error caused by repeated build numbers 
     buildIdentifier: build_r${{github.run_number}} 
     branch : ${{ github.ref_name }} 

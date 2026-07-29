@@ -30,7 +30,7 @@ on:
                 required: true
         
 env:
-    uniqueWorkspaceId: /u/github/workspace/${{ github.repository }}/${{ github.ref_name }}/build_${{github.run_number }} 
+    uniqueWorkspaceId: /usr/local/sandboxes/bank-of-z/pipeline/${{ github.repository }}/${{ github.ref_name }}/build_${{github.run_number }} 
     packageBuildIdentifier: ${{ inputs.packageBuildIdentifier}}
     branch : ${{ github.ref_name }} 
     application: ${{  github.event.repository.name  }}
