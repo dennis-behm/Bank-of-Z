@@ -55,7 +55,6 @@ jobs:
         # the "Unable to find reusable workflow" error is something that should be resovled when copying the .github folder into your repository
         with:
             pipelineType: build
-            zosHost: ${{ vars.ZOS_HOST }}
         secrets:
             githubAccessToken: ${{ secrets.GH_ACTIONS_PAT }}
 
@@ -68,7 +67,6 @@ jobs:
         # the "Unable to find reusable workflow" error is something that should be resovled when copying the .github folder into your repository
         with:
             pipelineType: build
-            zosHost: ${{ vars.ZOS_HOST }}
         secrets:
             githubAccessToken: ${{ secrets.GH_ACTIONS_PAT }}
         

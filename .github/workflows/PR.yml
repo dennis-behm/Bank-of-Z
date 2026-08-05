@@ -24,7 +24,5 @@ jobs:
         needs:
             - controller
         uses: ./.github/workflows/Setup.yml
-        with:
-            zosHost: ${{ vars.ZOS_HOST }}
         secrets:
             githubAccessToken: ${{ secrets.GH_ACTIONS_PAT }}
