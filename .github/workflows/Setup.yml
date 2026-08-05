@@ -33,7 +33,13 @@ jobs:
         runs-on: self-hosted
         steps:
           - name: Run Bank of Z installation procedure
-            run: ssh ${{ env.zosHost }} ". ./.profile && bash ${{ env.uniqueWorkspaceId }}/${{ env.application }}/.setup/pipeline-remote.sh"
+            run: |
+              ssh ${{ env.zosHost }} "
+                . ./.profile &&
+                cd ${{ env.uniqueWorkspaceId }} &&
+                if [ -d ${{ env.application }} ]; then cd ${{ env.application }}; fi &&
+                bash .setup/pipeline-remote.sh
+              "
 
     Cleanup:
         needs:
