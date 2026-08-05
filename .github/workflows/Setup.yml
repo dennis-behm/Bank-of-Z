@@ -1,0 +1,47 @@
+name: Setup
+on:
+    workflow_call:
+        secrets:
+            githubAccessToken:
+                required: true
+
+env:
+    uniqueWorkspaceId: /usr/local/sandboxes/bank-of-z/setup/${{ github.repository }}/${{ github.ref_name }}/setup_s${{ github.run_number }}
+    branch: ${{ github.ref_name }}
+    application: ${{ github.event.repository.name }}
+    zosHostname: lpar.dev.ibm.com
+    zosSFTPUser: GITHUB@lpar.dev.ibm.com
+
+jobs:
+    Setup:
+        runs-on: self-hosted
+        steps:
+          - name: CI-CD pipeline parameter printout
+            run: |
+                echo " "
+                echo "Following are the CI-CD pipeline parameters"
+                echo "*******************************************"
+                echo "uniqueWorkspaceId                  = ${{ env.uniqueWorkspaceId}}"
+                echo "branch                             = ${{ env.branch}}"
+                echo "application                        = ${{ env.application}}"
+                echo "zosHostname                        = ${{ env.zosHostname}}"
+                echo "zosSFTPUser                        = ${{ env.zosSFTPUser}}"
+
+          - name: Clone Repo to z/OS Unix System Services
+            run: ssh ${{ env.zosSFTPUser }} ". ./.profile && gitClone.sh -w ${{ env.uniqueWorkspaceId }} -r https://${{ secrets.githubAccessToken }}@github.com/${{ github.repository }}.git -b ${{ env.branch }}"
+
+    Install:
+        needs: Setup
+        runs-on: self-hosted
+        steps:
+          - name: Run Bank of Z installation procedure
+            run: ssh ${{ env.zosSFTPUser }} ". ./.profile && bash ${{ env.uniqueWorkspaceId }}/${{ env.application }}/.setup/pipeline-remote.sh"
+
+    Cleanup:
+        needs:
+            - Install
+        runs-on: self-hosted
+        if: always()
+        steps:
+          - name: Cleanup Setup Environment
+            run: ssh ${{ env.zosSFTPUser }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"

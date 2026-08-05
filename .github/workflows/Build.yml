@@ -66,13 +66,6 @@ jobs:
                 path: ${{ runner.temp }}/build-logs                             # Path to build logs artifacts
                 retention-days: 1
       
-    Package:
-        needs: Build
-        runs-on: self-hosted
-        steps:
-          - name: Package build outputs
-            run: ssh ${{ env.zosSFTPUser}} ". ./.profile && packageBuildOutputs.sh -w ${{ env.uniqueWorkspaceId }} -a ${{ env.application }} -b ${{ env.branch }} -p ${{env.pipelineType}} -i ${{ env.buildIdentifier}}"
-
     Deploy-Integration:
         needs: Package
         runs-on: self-hosted
