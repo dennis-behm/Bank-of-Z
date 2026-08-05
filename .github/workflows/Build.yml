@@ -65,7 +65,7 @@ jobs:
                 retention-days: 1
       
     Deploy-Integration:
-        needs: Package
+        needs: Build
         runs-on: self-hosted
         steps:
 
