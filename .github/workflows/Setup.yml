@@ -38,7 +38,7 @@ jobs:
                 . ./.profile &&
                 cd ${{ env.uniqueWorkspaceId }} &&
                 if [ -d ${{ env.application }} ]; then cd ${{ env.application }}; fi &&
-                bash .setup/pipeline-remote.sh
+                bash .setup/setup-remote.sh
               "
 
     Cleanup:
