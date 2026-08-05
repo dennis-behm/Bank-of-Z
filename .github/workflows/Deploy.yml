@@ -38,7 +38,7 @@ env:
     environmentName: ${{ inputs.environmentName }}
     packageName: ${{ github.run_id }}
     packageType: ${{ inputs.packageType }}
-    zosHost: ${{ vars.zosHost }}
+    zosHost: ${{ vars.ZOS_HOST }}
     githubAccessToken: ${{ secrets.GH_ACTIONS_PAT }}
 
 jobs:

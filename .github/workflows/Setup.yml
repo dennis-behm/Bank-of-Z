@@ -9,7 +9,7 @@ env:
     uniqueWorkspaceId: ${{ vars.ZOS_SANDBOX_DIR }}/setup/${{ github.repository }}/${{ github.ref_name }}/setup_s${{ github.run_number }}
     branch: ${{ github.ref_name }}
     application: ${{ github.event.repository.name }}
-    zosHost: ${{ vars.zosHost }}
+    zosHost: ${{ vars.ZOS_HOST }}
 
 jobs:
     Setup:

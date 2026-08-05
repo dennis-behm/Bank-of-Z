@@ -24,7 +24,7 @@ env:
     application: ${{ github.event.repository.name }}
     pipelineType: ${{ inputs.pipelineType }}
     packageName: ${{ github.run_id }}
-    zosHost: ${{ vars.zosHost }}
+    zosHost: ${{ vars.ZOS_HOST }}
     nextReleaseVersion: ""
 
 jobs:

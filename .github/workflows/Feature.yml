@@ -19,7 +19,7 @@ env:
     branch: ${{ github.ref_name }}
     application: ${{ github.event.repository.name }}
     packageName: ${{ github.run_id }}
-    zosHost: ${{ vars.zosHost }}
+    zosHost: ${{ vars.ZOS_HOST }}
 
 jobs:
     Setup:
