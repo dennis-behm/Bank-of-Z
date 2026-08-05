@@ -12,15 +12,14 @@ on:
                 required: false
 
 env:
-    uniqueWorkspaceId: /usr/local/sandboxes/bank-of-z/pipeline/${{ github.repository }}/${{ github.ref_name }}/build_f${{github.run_number }} # adding an f to before the number,
-    # to avoid an error caused by repeated build numbers 
-    buildIdentifier: build_f${{github.run_number }}
+    uniqueWorkspaceId: ${{ vars.ZOS_SANDBOX_DIR }}/pipeline/${{ github.repository }}/${{ github.ref_name }}/build_f${{ github.run_number }} # adding an f before the number
+    # to avoid an error caused by repeated build numbers
+    buildIdentifier: build_f${{ github.run_number }}
     pipelineType: ${{ inputs.pipelineType }}
-    branch : ${{ github.ref_name }} 
+    branch: ${{ github.ref_name }}
     application: ${{ github.event.repository.name }}
-    packageName: ${{github.run_id}}
-    zosHostname: lpar.dev.ibm.com
-    zosSFTPUser: ibmuser@9.47.80.84
+    packageName: ${{ github.run_id }}
+    zosHost: ${{ vars.zosHost }}
 
 jobs:
     Setup:
@@ -37,11 +36,10 @@ jobs:
                 echo "branch                             = ${{ env.branch}}"
                 echo "application                        = ${{ env.application}}"
                 echo "packageName                        = ${{ env.packageName}}"
-                echo "zosHostname                        = ${{ env.zosHostname}}"
-                echo "zosSFTPUser                        = ${{ env.zosSFTPUser}}"
+                echo "zosHost                            = ${{ env.zosHost}}"
 
           - name: Clone Repo to z/OS Unix System Services
-            run: ssh ${{env.zosSFTPUser}} ". ./.profile && gitClone.sh -w ${{ env.uniqueWorkspaceId }} -r https://${{ secrets.githubAccessToken }}@github.com/${{ github.repository }}.git -b ${{ env.branch }}" 
+            run: ssh ${{ env.zosHost }} ". ./.profile && gitClone.sh -w ${{ env.uniqueWorkspaceId }} -r https://${{ secrets.githubAccessToken }}@github.com/${{ github.repository }}.git -b ${{ env.branch }}"
 
     Build:
         needs:
@@ -49,14 +47,14 @@ jobs:
         runs-on: self-hosted
         steps: 
           - name: Build git repo
-            run: ssh ${{env.zosSFTPUser}} ". ./.profile && zBuilder.sh -w ${{ env.uniqueWorkspaceId }} -a ${{env.application}} -b ${{ env.branch }} -p ${{env.pipelineType}} -t 'full'"
+            run: ssh ${{ env.zosHost }} ". ./.profile && zBuilder.sh -w ${{ env.uniqueWorkspaceId }} -a ${{env.application}} -b ${{ env.branch }} -p ${{env.pipelineType}} -t 'full'"
           - name: Prepare logs
             if: ${{ always() }}
             run: |
-                ssh ${{env.zosSFTPUser}} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"  
-                rm -rf "${{ runner.temp }}/build-logs" 
-                mkdir "${{ runner.temp }}/build-logs" 
-                sftp ${{env.zosSFTPUser}}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
+                ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
+                rm -rf "${{ runner.temp }}/build-logs"
+                mkdir "${{ runner.temp }}/build-logs"
+                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
         
           - name: Upload build logs
@@ -74,4 +72,4 @@ jobs:
         if: always()
         steps:
           - name: Cleanup Build Environment
-            run: ssh ${{ env.zosSFTPUser}} ". ./.profile && deleteWorkspae.sh -w ${{ env.uniqueWorkspaceId }}"
+            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspae.sh -w ${{ env.uniqueWorkspaceId }}"

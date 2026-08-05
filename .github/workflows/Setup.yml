@@ -6,11 +6,10 @@ on:
                 required: true
 
 env:
-    uniqueWorkspaceId: /usr/local/sandboxes/bank-of-z/setup/${{ github.repository }}/${{ github.ref_name }}/setup_s${{ github.run_number }}
+    uniqueWorkspaceId: ${{ vars.ZOS_SANDBOX_DIR }}/setup/${{ github.repository }}/${{ github.ref_name }}/setup_s${{ github.run_number }}
     branch: ${{ github.ref_name }}
     application: ${{ github.event.repository.name }}
-    zosHostname: lpar.dev.ibm.com
-    zosSFTPUser: GITHUB@lpar.dev.ibm.com
+    zosHost: ${{ vars.zosHost }}
 
 jobs:
     Setup:
@@ -24,18 +23,17 @@ jobs:
                 echo "uniqueWorkspaceId                  = ${{ env.uniqueWorkspaceId}}"
                 echo "branch                             = ${{ env.branch}}"
                 echo "application                        = ${{ env.application}}"
-                echo "zosHostname                        = ${{ env.zosHostname}}"
-                echo "zosSFTPUser                        = ${{ env.zosSFTPUser}}"
+                echo "zosHost                            = ${{ env.zosHost}}"
 
           - name: Clone Repo to z/OS Unix System Services
-            run: ssh ${{ env.zosSFTPUser }} ". ./.profile && gitClone.sh -w ${{ env.uniqueWorkspaceId }} -r https://${{ secrets.githubAccessToken }}@github.com/${{ github.repository }}.git -b ${{ env.branch }}"
+            run: ssh ${{ env.zosHost }} ". ./.profile && gitClone.sh -w ${{ env.uniqueWorkspaceId }} -r https://${{ secrets.githubAccessToken }}@github.com/${{ github.repository }}.git -b ${{ env.branch }}"
 
     Install:
         needs: Setup
         runs-on: self-hosted
         steps:
           - name: Run Bank of Z installation procedure
-            run: ssh ${{ env.zosSFTPUser }} ". ./.profile && bash ${{ env.uniqueWorkspaceId }}/${{ env.application }}/.setup/pipeline-remote.sh"
+            run: ssh ${{ env.zosHost }} ". ./.profile && bash ${{ env.uniqueWorkspaceId }}/${{ env.application }}/.setup/pipeline-remote.sh"
 
     Cleanup:
         needs:
@@ -44,4 +42,4 @@ jobs:
         if: always()
         steps:
           - name: Cleanup Setup Environment
-            run: ssh ${{ env.zosSFTPUser }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
+            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"

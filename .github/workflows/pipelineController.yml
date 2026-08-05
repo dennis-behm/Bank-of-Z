@@ -46,29 +46,31 @@ jobs:
               run: |
                   ERRMSG="The release pipeline should only be run from the main branch"
                   echo $ERRMSG
-    feature: 
-        needs: 
+    feature:
+        needs:
             - controller
         # this should automatically run on push to feature branches
-        if: ${{(startsWith(github.ref_name, 'feature/'))}} 
-        uses: ./.github/workflows/Feature.yml 
+        if: ${{ startsWith(github.ref_name, 'feature/') }}
+        uses: ./.github/workflows/Feature.yml
         # the "Unable to find reusable workflow" error is something that should be resovled when copying the .github folder into your repository
         with:
             pipelineType: build
+            zosHost: ${{ vars.ZOS_HOST }}
         secrets:
-            githubAccessToken: ${{ secrets.GH_ACTIONS_PAT }} 
+            githubAccessToken: ${{ secrets.GH_ACTIONS_PAT }}
 
-    build: 
-        needs: 
+    build:
+        needs:
             - controller
         # this should run on manual trigger with pipelineType = build and automatic trigger
-        if: ${{(inputs.pipelineType == 'build' || inputs.pipelineType == '') && (startsWith(github.ref_name, 'feature/') == false)}}
+        if: ${{ (inputs.pipelineType == 'build' || inputs.pipelineType == '') && (startsWith(github.ref_name, 'feature/') == false) }}
         uses: ./.github/workflows/Build.yml
         # the "Unable to find reusable workflow" error is something that should be resovled when copying the .github folder into your repository
         with:
             pipelineType: build
+            zosHost: ${{ vars.ZOS_HOST }}
         secrets:
-            githubAccessToken: ${{ secrets.GH_ACTIONS_PAT }} 
+            githubAccessToken: ${{ secrets.GH_ACTIONS_PAT }}
         
     release: 
         needs: 
