@@ -72,4 +72,4 @@ jobs:
         if: always()
         steps:
           - name: Cleanup Build Environment
-            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspae.sh -w ${{ env.uniqueWorkspaceId }}"
+            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
