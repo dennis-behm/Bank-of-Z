@@ -70,10 +70,10 @@ jobs:
         steps:
 
           - name: Generate deployment plan 
-            run: ssh ${{ env.zosHost }} ". ./.profile && mkdir -p ${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs && wazideploy-generate.sh -w ${{ env.uniqueWorkspaceId }} -a ${{ env.application }} -P ${{env.pipelineType}} -R ${{ env.branch }} -I ${{env.buildIdentifier}} -b ${{ env.branch }}"
+            run: ssh ${{ env.zosHost }} ". ./.profile && mkdir -p ${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs && wazideploy-generate.sh -w ${{ env.uniqueWorkspaceId }} -a ${{ env.application }} -i ${{ env.uniqueWorkspaceId }}/${env.application}/logs/some.tar -b ${{ env.branch }}"
             
           - name: Deploy to integration
-            run: ssh ${{ env.zosHost }} ". ./.profile && wazideploy-deploy.sh -w ${{ env.uniqueWorkspaceId }} -e EOLEB7-${{ env.application }}-Integration.yaml -l deploy-logs/evidences/evidence.yaml"
+            run: ssh ${{ env.zosHost }} ". ./.profile && wazideploy-deploy.sh -w ${{ env.uniqueWorkspaceId }} -e Development.yaml -l deploy-logs/evidences/evidence.yaml"
           
           - name: Generate and publish deployment report for integration
             run: | 
