@@ -73,7 +73,7 @@ jobs:
             run: ssh ${{ env.zosHost }} ". ./.profile && mkdir -p ${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs && wazideploy-generate.sh -w ${{ env.uniqueWorkspaceId }} -a ${{ env.application }} -i ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/BANKZ-${{ inputs.pipelineType }}-${{ github.run_number }}.tar -b ${{ env.branch }}"
             
           - name: Deploy to integration
-            run: ssh ${{ env.zosHost }} ". ./.profile && wazideploy-deploy.sh -w ${{ env.uniqueWorkspaceId }} -e Development.yml -i ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/BANKZ-${{ inputs.pipelineType }}-${{ github.run_number }}.tar -l deploy-logs/evidences/evidence.yaml"
+            run: ssh ${{ env.zosHost }} ". ./.profile && wazideploy-deploy.sh -w ${{ env.uniqueWorkspaceId }} -a ${{ env.application }} -e Development.yml -i ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/BANKZ-${{ inputs.pipelineType }}-${{ github.run_number }}.tar -l deploy-logs/evidences/evidence.yaml"
           
           - name: Generate and publish deployment report for integration
             run: | 
