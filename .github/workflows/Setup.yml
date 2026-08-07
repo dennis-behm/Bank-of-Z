@@ -10,6 +10,8 @@ env:
     branch: ${{ github.ref_name }}
     application: ${{ github.event.repository.name }}
     zosHost: ${{ vars.ZOS_HOST }}
+    bozFrontendUrl: https://9.47.80.84:9081
+
 
 jobs:
     Setup:
@@ -41,11 +43,30 @@ jobs:
                 bash .setup/setup-remote.sh
               "
 
-    Cleanup:
-        needs:
-            - Install
+    Install-Verfication:
+         needs: Install
+         runs-on: self-hosted
+         steps:
+          - name: Verify zOS Frontend availability
+            run: |
+              ADMIN_URL="${{ var.bozFrontendUrl }}/admin.html"
+              HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time 10 "$ADMIN_URL" || true)
+              [ "$HTTP_STATUS" = "200" ] && echo "OK: $ADMIN_URL returned HTTP 200" && exit 0
+              echo "FAIL: $ADMIN_URL returned HTTP ${HTTP_STATUS:-000}" >&2
+              exit 1
+
+    Test-Customer-Details:
+        needs: Install-Verfication
         runs-on: self-hosted
-        if: always()
         steps:
-          - name: Cleanup Setup Environment
-            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
+          - name: Checkout repository
+            uses: actions/checkout@v4
+
+          - name: Check Python installation
+            run: |
+              python3 --version
+              echo "Python check passed"
+
+          - name: Test - Get Customer Details (C0000001)
+            run: bash tests/test_get_customer.sh
+
