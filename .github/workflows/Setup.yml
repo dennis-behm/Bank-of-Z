@@ -10,7 +10,7 @@ env:
     branch: ${{ github.ref_name }}
     application: ${{ github.event.repository.name }}
     zosHost: ${{ vars.ZOS_HOST }}
-    bozFrontendUrl: https://9.47.80.84:9081
+    bozFrontendUrl: http://9.47.80.84:9081
 
 
 jobs:
@@ -50,9 +50,14 @@ jobs:
           - name: Verify zOS Frontend availability
             run: |
               ADMIN_URL="${{ env.bozFrontendUrl }}/admin.html"
-              HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time 10 --insecure "$ADMIN_URL" || true)
-              [ "$HTTP_STATUS" = "200" ] && echo "OK: $ADMIN_URL returned HTTP 200" && exit 0
-              echo "FAIL: $ADMIN_URL returned HTTP ${HTTP_STATUS:-000}" >&2
+              HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time 10 --insecure "$ADMIN_URL")
+              CURL_EXIT=$?
+              if [ "$HTTP_STATUS" = "200" ]; then
+                echo "OK: $ADMIN_URL returned HTTP 200"
+                exit 0
+              fi
+              echo "FAIL: $ADMIN_URL returned HTTP ${HTTP_STATUS:-000} (curl exit code: $CURL_EXIT)" >&2
+              # curl exit codes: 6=DNS failure, 7=connection refused, 28=timeout, 35=SSL error
               exit 1
 
     Test-Customer-Details:
