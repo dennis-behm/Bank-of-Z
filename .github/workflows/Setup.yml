@@ -49,7 +49,7 @@ jobs:
          steps:
           - name: Verify zOS Frontend availability
             run: |
-              ADMIN_URL="${{ var.bozFrontendUrl }}/admin.html"
+              ADMIN_URL="${{ env.bozFrontendUrl }}/admin.html"
               HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time 10 "$ADMIN_URL" || true)
               [ "$HTTP_STATUS" = "200" ] && echo "OK: $ADMIN_URL returned HTTP 200" && exit 0
               echo "FAIL: $ADMIN_URL returned HTTP ${HTTP_STATUS:-000}" >&2
