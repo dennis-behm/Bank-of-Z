@@ -47,14 +47,16 @@ jobs:
         runs-on: self-hosted
         steps: 
           - name: Build git repo
-            run: ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-remote.sh build"
+            run: | 
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build"
+
           - name: Prepare logs
             if: ${{ always() }}
             run: |
-                ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
+                ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}/${{ env.application }}"
                 rm -rf "${{ runner.temp }}/build-logs"
                 mkdir "${{ runner.temp }}/build-logs"
-                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
+                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/${{ env.application }}/*.tar "\"${{ runner.temp }}/build-logs\""
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
         
           - name: Upload build logs
@@ -72,4 +74,4 @@ jobs:
         if: always()
         steps:
           - name: Cleanup Build Environment
-            run: ssh ${{ env.zosHost }} ". ./.profile && deleeWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
+            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
