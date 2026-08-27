@@ -75,7 +75,8 @@ jobs:
           - name: deploy-dev 
             run: | 
                 ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh deploy && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && rm -Rf ${{ env.uniqueWorkspaceId }}/logs/*.*  && cp /usr/local/sandboxes/bank-of-z/logs/deploy/*.* ${{ env.uniqueWorkspaceId }}/logs"
-          
+                ssh ${{ env.zosHost }} ". ./.profile && mkdir -p /usr/local/sandboxes/bank-of-z/wd_analysis/${{ github.run_number }} && cp /usr/local/sandboxes/bank-of-z/logs/deploy/evidences/*.yaml /usr/local/sandboxes/bank-of-z/wd_analysis/${{ github.run_number }}"
+
           - name: prepare-logs
             if: ${{ always() }}
             run: |
