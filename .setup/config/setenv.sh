@@ -82,8 +82,8 @@ ZBUILDER_TARGET=$(get_section_value 'zbuilder' 'target_dir')
 # DBB
 DBB_HOME=$(get_section_value 'dbb' 'dbb_home')
 DBB_BUILD=$(get_section_value 'dbb' 'dbb_build')
-DBB_CWD="${DBB_CWD:-$(get_section_value 'dbb' 'dbb_cwd')}"
-DBB_APP_CONF="${DBB_APP_CONF:-$(get_section_value 'dbb' 'dbb_app_conf')}"
+DBB_CWD=$(get_section_value 'dbb' 'dbb_cwd')
+DBB_APP_CONF=$(get_section_value 'dbb' 'dbb_app_conf')
 DBB_LOG_FOLDER=$(get_section_value 'dbb' 'dbb_log_dir')
 DBB_BUILD_PATH=$(get_section_value 'dbb' 'dbb_build')
 DBB_LOG_FOLDER="${DBB_LOG_FOLDER:-$(get_section_value 'dbb' 'dbb_log_dir')}"
