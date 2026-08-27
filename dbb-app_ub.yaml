@@ -27,8 +27,6 @@ application:
       - name: sourceDirs
         value:
             - "Bank-of-Z/src/base"
-            - "Bank-of-Z/src/api/src/main/api"
-            - "Bank-of-Z/src/frontend"
 
     - task: ScannerInit
       variables:

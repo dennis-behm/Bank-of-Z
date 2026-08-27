@@ -1,4 +1,4 @@
-name: Setup
+name: boz-install
 on:
     workflow_call:
         secrets:
@@ -10,12 +10,15 @@ env:
     branch: ${{ github.ref_name }}
     application: ${{ github.event.repository.name }}
     zosHost: ${{ vars.ZOS_HOST }}
+    bozFrontendUrl: http://9.47.80.84:9081
+
 
 jobs:
-    Setup:
+    setup:
         runs-on: self-hosted
+        name: parameters
         steps:
-          - name: CI-CD pipeline parameter printout
+          - name: pipeline-parameters
             run: |
                 echo " "
                 echo "Following are the CI-CD pipeline parameters"
@@ -25,14 +28,14 @@ jobs:
                 echo "application                        = ${{ env.application}}"
                 echo "zosHost                            = ${{ env.zosHost}}"
 
-          - name: Clone Repo to z/OS Unix System Services
+          - name: clone-repository-to-uss
             run: ssh ${{ env.zosHost }} ". ./.profile && gitClone.sh -w ${{ env.uniqueWorkspaceId }} -r https://${{ secrets.githubAccessToken }}@github.com/${{ github.repository }}.git -b ${{ env.branch }}"
 
-    Install:
-        needs: Setup
+    install:
+        needs: setup
         runs-on: self-hosted
         steps:
-          - name: Run Bank of Z installation procedure
+          - name: full-install-procedure
             run: |
               ssh ${{ env.zosHost }} "
                 . ./.profile &&
@@ -41,11 +44,16 @@ jobs:
                 bash .setup/setup-remote.sh
               "
 
-    Cleanup:
-        needs:
-            - Install
+    verify-installation:
+        needs: install
         runs-on: self-hosted
-        if: always()
         steps:
-          - name: Cleanup Setup Environment
-            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
+          - name: run-installation-verification-tests
+            run: |
+              ssh ${{ env.zosHost }} "
+                . ./.profile &&
+                cd ${{ env.uniqueWorkspaceId }} &&
+                if [ -d ${{ env.application }} ]; then cd ${{ env.application }}; fi &&
+                bash .setup/setup-common.sh verify-installation
+              "
+

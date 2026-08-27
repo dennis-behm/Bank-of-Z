@@ -183,9 +183,9 @@ run_job_and_wait() {
     esac
   fi
   print_error "Job failed: $JOBID"
-  print_info "===== JESYSMSG ====="
-  pjdd "$JOBID" JES2 JESYSMSG 2>/dev/null || true
-return 8
+  print_info "===== JOB LOG ====="
+  pjdd "$JOBID" '*'
+  return 8
 }
 
 # ============================================================
@@ -289,4 +289,30 @@ detect_bank_of_z_location() {
     fi
     BANK_OF_Z_WORK_DIR=$(dirname $BANK_DIR)
     return 0
+}
+
+# Executes a TSO command and handles its return code.
+# The command output is temporarily stored in a log file.
+# In case of failure, a warning message and the log content are displayed.
+# The temporary log file is then removed, and the TSO command return code
+# is returned to the caller.
+run_tso() {
+    local was_e=0
+    case "$-" in
+        *e*) was_e=1 ;;
+    esac
+    set +e
+    local cmd="$1"
+    print_info "TSO Cmd: $cmd"
+    tsocmd "$cmd" > "/tmp/run_tso_$$.log" 2>&1
+    local rc=$?
+    if [ $rc -ne 0 ]; then
+        print_warning "TSO Command failed (rc=$rc): $cmd"
+        cat "/tmp/run_tso_$$.log"
+    fi
+    rm -f "/tmp/run_tso_$$.log"
+    if [ "$was_e" -eq 1 ]; then
+        set -e
+    fi
+    return $rc
 }
