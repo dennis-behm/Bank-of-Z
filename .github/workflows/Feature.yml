@@ -48,15 +48,15 @@ jobs:
         steps: 
           - name: Build git repo
             run: | 
-                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build"
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir ${{ env.uniqueWorkspaceId }}/logs && mv /usr/local/sandboxes/bank-of-z/logs/dbb/*.* ${{ env.uniqueWorkspaceId }}/logs"
 
           - name: Prepare logs
             if: ${{ always() }}
             run: |
-                ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}/${{ env.application }}"
+                ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
                 rm -rf "${{ runner.temp }}/build-logs"
                 mkdir "${{ runner.temp }}/build-logs"
-                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/${{ env.application }}/*.tar "\"${{ runner.temp }}/build-logs\""
+                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
         
           - name: Upload build logs
