@@ -11,6 +11,7 @@ on:
                 type: string
                 required: false
 
+
 env:
     uniqueWorkspaceId: ${{ vars.ZOS_SANDBOX_DIR }}/pipeline/${{ github.repository }}/${{ github.ref_name }}/build_f${{ github.run_number }} # adding an f before the number
     # to avoid an error caused by repeated build numbers
@@ -24,30 +25,30 @@ env:
 jobs:
     Setup:
         runs-on: self-hosted
-        steps:    
-          - name: CI-CD pipeline parameter printout
-            run: |
-                echo " "
-                echo "Following are the CI-CD pipeline parameters"
-                echo "*******************************************"
-                echo "uniqueWorkspaceId                  = ${{ env.uniqueWorkspaceId}}"
-                echo "buildIdentifier                    = ${{ env.buildIdentifier}}"
-                echo "pipelineType                       = ${{ env.pipelineType}}"
-                echo "branch                             = ${{ env.branch}}"
-                echo "application                        = ${{ env.application}}"
-                echo "packageName                        = ${{ env.packageName}}"
-                echo "zosHost                            = ${{ env.zosHost}}"
-
-          - name: Clone Repo to z/OS Unix System Services
-            run: ssh ${{ env.zosHost }} ". ./.profile && gitClone.sh -w ${{ env.uniqueWorkspaceId }} -r https://${{ secrets.githubAccessToken }}@github.com/${{ github.repository }}.git -b ${{ env.branch }}"
+        steps:
+         - name: CI-CD pipeline parameter printout
+           run: |
+            echo " "
+            echo "Following are the CI-CD pipeline parameters"
+            echo "*******************************************"
+            echo "uniqueWorkspaceId                  = ${{ env.uniqueWorkspaceId}}"
+            echo "buildIdentifier                    = ${{ env.buildIdentifier}}"
+            echo "branch                             = ${{ env.branch}}"
+            echo "application                        = ${{ env.application}}"
+            echo "pipelineType                       = ${{ env.pipelineType}}"
+            echo "packageName                        = ${{ env.packageName}}"
+            echo "zosHost                            = ${{ env.zosHost}}"
+            
+         - name: Clone Repo to z/OS Unix System Services
+           run: ssh ${{ env.zosHost }} ". ./.profile && gitClone.sh -w ${{ env.uniqueWorkspaceId }} -r https://${{ secrets.githubAccessToken }}@github.com/${{ github.repository }}.git -b ${{ env.branch }}"
 
     Build:
         needs:
          - Setup
         runs-on: self-hosted
-        steps: 
+        steps:
           - name: execute-build-task
-            run: | 
+            run: |
                 ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp /usr/local/sandboxes/bank-of-z/logs/dbb/*.* ${{ env.uniqueWorkspaceId }}/logs"
 
           - name: prepare-logs
@@ -72,8 +73,8 @@ jobs:
         runs-on: self-hosted
         steps:
 
-          - name: deploy-dev 
-            run: | 
+          - name: deploy-dev
+            run: |
                 ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh deploy && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && rm -Rf ${{ env.uniqueWorkspaceId }}/logs/*.*  && cp /usr/local/sandboxes/bank-of-z/logs/deploy/*.* ${{ env.uniqueWorkspaceId }}/logs"
                 ssh ${{ env.zosHost }} ". ./.profile && mkdir -p /usr/local/sandboxes/bank-of-z/wd_analysis/${{ github.run_number }} && cp /usr/local/sandboxes/bank-of-z/logs/deploy/evidences/*.yaml /usr/local/sandboxes/bank-of-z/wd_analysis/${{ github.run_number }}"
 
@@ -90,9 +91,9 @@ jobs:
             if: ${{ always() }}
             uses: actions/upload-artifact@v4
             with:
-                name: build_${{github.run_number }}                        # Name used for artifact when it is uploaded
-                path: ${{ runner.temp }}/build-logs                        # Path to build logs artifacts
-                retention-days: 1            
+                name: deploy_${{github.run_number }}                        # Name used for artifact when it is uploaded
+                path: ${{ runner.temp }}/build-logs                         # Path to build logs artifacts
+                retention-days: 1
 
     Cleanup:
         needs:
@@ -102,4 +103,5 @@ jobs:
         if: always()
         steps:
           - name: cleanup-workspace
-            run: ssh ${{ env.zosHost }} ". ./.profile && deleeWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
+            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
+            

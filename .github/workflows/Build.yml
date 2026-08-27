@@ -16,9 +16,9 @@ env:
     uniqueWorkspaceId: ${{ vars.ZOS_SANDBOX_DIR }}/pipeline/${{ github.repository }}/${{ github.ref_name }}/build_b${{ github.run_number }} # adding a b before the number
     # to avoid an error caused by repeated build numbers
     buildIdentifier: build_b${{ github.run_number }}
+    pipelineType: ${{ inputs.pipelineType }}
     branch: ${{ github.ref_name }}
     application: ${{ github.event.repository.name }}
-    pipelineType: ${{ inputs.pipelineType }}
     packageName: ${{ github.run_id }}
     zosHost: ${{ vars.ZOS_HOST }}
 jobs:
@@ -42,59 +42,65 @@ jobs:
            run: ssh ${{ env.zosHost }} ". ./.profile && gitClone.sh -w ${{ env.uniqueWorkspaceId }} -r https://${{ secrets.githubAccessToken }}@github.com/${{ github.repository }}.git -b ${{ env.branch }}"
 
     Build:
-        needs: Setup
+        needs:
+         - Setup
         runs-on: self-hosted
         steps:
-          - name: Build git repo
-            run: ssh ${{ env.zosHost }} ". ./.profile && zBuilder.sh -w ${{ env.uniqueWorkspaceId }} -a ${{env.application}} -b ${{ env.branch }} -p ${{env.pipelineType}}"
-          
-          - name: Prepare logs
+          - name: execute-build-task
+            run: |
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp /usr/local/sandboxes/bank-of-z/logs/dbb/*.* ${{ env.uniqueWorkspaceId }}/logs"
+
+          - name: prepare-logs
             if: ${{ always() }}
-            run: | 
+            run: |
                 ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
                 rm -rf "${{ runner.temp }}/build-logs"
                 mkdir "${{ runner.temp }}/build-logs"
                 sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
-
-          - name: Upload build logs
+        
+          - name: upload-build-logs
+            if: ${{ always() }}
             uses: actions/upload-artifact@v4
             with:
-                name: build_logs_${{github.run_number }}                        # Name used for artifact when it is uploaded
-                path: ${{ runner.temp }}/build-logs                             # Path to build logs artifacts
+                name: build_${{github.run_number }}                        # Name used for artifact when it is uploaded
+                path: ${{ runner.temp }}/build-logs                        # Path to build logs artifacts
                 retention-days: 1
-      
-    Deploy-Integration:
+
+    Deploy:
         needs: Build
         runs-on: self-hosted
         steps:
 
-          - name: Generate deployment plan 
-            run: ssh ${{ env.zosHost }} ". ./.profile && mkdir -p ${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs && wazideploy-generate.sh -w ${{ env.uniqueWorkspaceId }} -a ${{ env.application }} -P ${{env.pipelineType}} -R ${{ env.branch }} -I ${{env.buildIdentifier}} -b ${{ env.branch }}"
-            
-          - name: Deploy to integration
-            run: ssh ${{ env.zosHost }} ". ./.profile && wazideploy-deploy.sh -w ${{ env.uniqueWorkspaceId }} -e EOLEB7-${{ env.application }}-Integration.yaml -l deploy-logs/evidences/evidence.yaml"
-          
-          - name: Generate and publish deployment report for integration
-            run: | 
-                ssh ${{ env.zosHost }} ". ./.profile && wazideploy-evidence.sh -w ${{ env.uniqueWorkspaceId }} -l deploy-logs/evidence.yaml -o deploy-logs/deployment-report.html"
-                rm -rf "${{ runner.temp }}/deploy-logs"
-                mkdir "${{ runner.temp }}/deploy-logs"
-                sftp -r ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs/* "\"${{ runner.temp }}/deploy-logs\""
-          
-          - name: Upload deploy logs
+          - name: deploy-dev
+            run: |
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh deploy && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && rm -Rf ${{ env.uniqueWorkspaceId }}/logs/*.*  && cp /usr/local/sandboxes/bank-of-z/logs/deploy/*.* ${{ env.uniqueWorkspaceId }}/logs"
+                ssh ${{ env.zosHost }} ". ./.profile && mkdir -p /usr/local/sandboxes/bank-of-z/wd_analysis/${{ github.run_number }} && cp /usr/local/sandboxes/bank-of-z/logs/deploy/evidences/*.yaml /usr/local/sandboxes/bank-of-z/wd_analysis/${{ github.run_number }}"
+
+          - name: prepare-logs
+            if: ${{ always() }}
+            run: |
+                ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
+                rm -rf "${{ runner.temp }}/build-logs"
+                mkdir "${{ runner.temp }}/build-logs"
+                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
+                tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
+        
+          - name: upload-build-logs
+            if: ${{ always() }}
             uses: actions/upload-artifact@v4
             with:
-              name: deploy_logs_${{github.run_number }}                    # Name used for artifact when it is uploaded
-              path: ${{ runner.temp }}/deploy-logs                        # Path to build logs artifacts
-              retention-days: 1
+                name: deploy_${{github.run_number }}                        # Name used for artifact when it is uploaded
+                path: ${{ runner.temp }}/build-logs                         # Path to build logs artifacts
+                retention-days: 1
 
     Cleanup:
         needs:
-            - Deploy-Integration
+          - Build
+          - Deploy
         runs-on: self-hosted
         if: always()
         steps:
-            - name: Cleanup Build Environment
-              run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
+          - name: cleanup-workspace
+            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
             
