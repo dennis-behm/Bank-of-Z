@@ -46,11 +46,11 @@ jobs:
          - Setup
         runs-on: self-hosted
         steps: 
-          - name: Build git repo
+          - name: execute-build-task
             run: | 
-                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir ${{ env.uniqueWorkspaceId }}/logs && mv /usr/local/sandboxes/bank-of-z/logs/dbb/*.* ${{ env.uniqueWorkspaceId }}/logs"
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir ${{ env.uniqueWorkspaceId }}/logs && cp /usr/local/sandboxes/bank-of-z/logs/dbb/*.* ${{ env.uniqueWorkspaceId }}/logs"
 
-          - name: Prepare logs
+          - name: prepare-logs
             if: ${{ always() }}
             run: |
                 ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
@@ -59,7 +59,7 @@ jobs:
                 sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
         
-          - name: Upload build logs
+          - name: upload-build-logs
             if: ${{ always() }}
             uses: actions/upload-artifact@v4
             with:
@@ -67,11 +67,22 @@ jobs:
                 path: ${{ runner.temp }}/build-logs                        # Path to build logs artifacts
                 retention-days: 1
 
+    Deploy:
+        needs: Build
+        runs-on: self-hosted
+        steps:
+
+          - name: deploy-dev 
+            run: | 
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh deploy && mkdir ${{ env.uniqueWorkspaceId }}/logs && cp /usr/local/sandboxes/bank-of-z/logs/dbb/*.* ${{ env.uniqueWorkspaceId }}/logs"
+            
+
     Cleanup:
         needs:
           - Build
+          - Deploy
         runs-on: self-hosted
         if: always()
         steps:
-          - name: Cleanup Build Environment
+          - name: cleanup-workspace
             run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
