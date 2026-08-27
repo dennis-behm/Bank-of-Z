@@ -13,6 +13,7 @@
       *
       * Should there be any issues, the program will abend.
       *
+      * Test August
       ******************************************************************
 
        IDENTIFICATION DIVISION.
@@ -227,6 +228,7 @@
       *
 
            IF ACCOUNT-TYPE = SPACES OR LOW-VALUES
+      * Trigger build 1 
               MOVE 'N' TO INQACC-SUCCESS
            ELSE
               MOVE ACCOUNT-EYE-CATCHER       TO INQACC-EYE

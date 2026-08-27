@@ -7,7 +7,7 @@
       ******************************************************************
 
 
-      ******************************************************************
+      *****************************************************************
       * This program processes application abends and writes them to
       * a centralised CF (KSDS) datastore - this is so that they can be
       * viewed from one place, without having to go hunting for them.
