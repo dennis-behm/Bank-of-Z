@@ -228,6 +228,7 @@
       *
 
            IF ACCOUNT-TYPE = SPACES OR LOW-VALUES
+      * Trigger build     
               MOVE 'Y' TO INQACC-SUCCESS
            ELSE
               MOVE ACCOUNT-EYE-CATCHER       TO INQACC-EYE
