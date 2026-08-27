@@ -74,8 +74,24 @@ jobs:
 
           - name: deploy-dev 
             run: | 
-                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh deploy && mkdir ${{ env.uniqueWorkspaceId }}/logs && cp /usr/local/sandboxes/bank-of-z/logs/dbb/*.* ${{ env.uniqueWorkspaceId }}/logs"
-            
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh deploy && mkdir ${{ env.uniqueWorkspaceId }}/logs && cp /usr/local/sandboxes/bank-of-z/logs/deploy/*.* ${{ env.uniqueWorkspaceId }}/logs"
+          
+          - name: prepare-logs
+            if: ${{ always() }}
+            run: |
+                ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
+                rm -rf "${{ runner.temp }}/build-logs"
+                mkdir "${{ runner.temp }}/build-logs"
+                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
+                tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
+        
+          - name: upload-build-logs
+            if: ${{ always() }}
+            uses: actions/upload-artifact@v4
+            with:
+                name: build_${{github.run_number }}                        # Name used for artifact when it is uploaded
+                path: ${{ runner.temp }}/build-logs                        # Path to build logs artifacts
+                retention-days: 1            
 
     Cleanup:
         needs:
