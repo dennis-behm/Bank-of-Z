@@ -11,9 +11,12 @@
     "zopeneditor.zowe": {
         "defaultCliProfile": "bank-of-z.rse"
     },
+    // you need your personal >indexFolder<
+    // update "indexFolder": "/tmp/ibmuser/evidences_index",
+    // to your user id
     "zopeneditor.wazideploy.evidence": {
         "dataFolder": "/usr/local/sandboxes/bank-of-z/wd_analysis",
-        "indexFolder": "/tmp/ibmuser/gitlabr_mcp_tooling_tmp_evidences_index",
+        "indexFolder": "/tmp/ibmuser/evidences_index",
         "executablePath": "/global/opt/pyenv/gdp/bin/wazideploy-evidence",
     }
 }
