@@ -228,8 +228,8 @@
       *
 
            IF ACCOUNT-TYPE = SPACES OR LOW-VALUES
-      * Trigger build 1 
-              MOVE 'N' TO INQACC-SUCCESS
+      * Trigger pipeline sample     
+              MOVE 'Y' TO INQACC-SUCCESS
            ELSE
               MOVE ACCOUNT-EYE-CATCHER       TO INQACC-EYE
               MOVE ACCOUNT-CUST-NO           TO INQACC-CUSTNO
