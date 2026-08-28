@@ -670,7 +670,7 @@
                       (CUSTOMER-CS-REVIEW-MONTH * 100) +
                       CUSTOMER-CS-REVIEW-DAY
 
-      *
+      * test change pipeline
       * Insert customer record into DB2
       *
                EXEC SQL
