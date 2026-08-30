@@ -1,22 +1,14 @@
 {
-    "grub.buildCommand": "./.setup/pipeline-common.sh",
-    "grub.serverRoot": "/usr/local/sandboxes/bank-of-z",
-    "java.compile.nullAnalysis.mode": "disabled",
-    "zopeneditor.userbuild.userSettings": {
+  "grub.buildCommand": "./.setup/pipeline-common.sh",
+  "grub.serverRoot": "/usr/local/sandboxes/bank-of-z",
+  "java.compile.nullAnalysis.mode": "disabled",
+  "zopeneditor.userbuild.userSettings": {
         "dbbDefaultZappProfile": "zBuilder-userbuild",
-        "dbbHlq": "IBMUSER.BOZ.UB",
-        "dbbWorkspace": "/u/ibmuser/userBuild_boz",
+        "dbbHlq": "user10.BOZ.UB",
+        "dbbWorkspace": "/u/user10/userBuild_boz",
         "dbbApplication": "Bank-of-Z"
     },
     "zopeneditor.zowe": {
-        "defaultCliProfile": "bank-of-z.rse"
-    },
-    // you need your personal >indexFolder<
-    // update "indexFolder": "/tmp/ibmuser/evidences_index",
-    // to your user id
-    "zopeneditor.wazideploy.evidence": {
-        "dataFolder": "/usr/local/sandboxes/bank-of-z/wd_analysis",
-        "indexFolder": "/tmp/ibmuser/evidences_index",
-        "executablePath": "/global/opt/pyenv/gdp/bin/wazideploy-evidence",
+        "defaultCliProfile": "bankofz.rse"
     }
 }

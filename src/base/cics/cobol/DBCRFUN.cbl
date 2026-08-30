@@ -190,6 +190,25 @@
        01 WS-SUFFICIENT-FUNDS           PIC X VALUE 'N'.
        01 WS-DIFFERENCE                 PIC S9(10)V99.
 
+      *
+      * Loyalty programme host variables
+      *
+       01 WS-LOYALTY-POINTS-EARNED      PIC S9(9) USAGE COMP-5
+                                                    VALUE 0.
+       01 HV-LOYALTY-SORTCODE           PIC X(6).
+       01 HV-LOYALTY-CUSTNO             PIC X(10).
+
+      * TD queue record for loyalty warning messages
+       01 WS-LOYALTY-WARN-MSG.
+          03 WS-LOYALTY-WARN-PGM        PIC X(8)
+                                         VALUE 'DBCRFUN '.
+          03 WS-LOYALTY-WARN-TXT        PIC X(40)
+                                         VALUE SPACES.
+          03 WS-LOYALTY-WARN-SQLCODE    PIC S9(8) DISPLAY
+                                         SIGN LEADING SEPARATE.
+       01 WS-LOYALTY-WARN-LEN           PIC S9(4) USAGE BINARY
+                                                    VALUE 57.
+
        LINKAGE SECTION.
        01 DFHCOMMAREA.
           COPY PAYDBCR.
@@ -313,9 +332,6 @@
       *       request is denied so remove the record LOCK and
       *       and finish.
       *
-      D       DISPLAY 'COMM-AMT IS negative'
-
-
       *
       *       Check to see whether the Payment is being
       *       requested from a MORTGAGE or LOAN account. We only make
@@ -342,7 +358,6 @@
                  + COMM-AMT
 
               IF WS-DIFFERENCE < 0 AND COMM-FACILTYPE = 496
-      D          DISPLAY 'insufficient funds!'
                  MOVE 'N' TO COMM-SUCCESS
                  MOVE '3' TO COMM-FAIL-CODE
 
@@ -439,6 +454,14 @@
       *    PROCTRAN (processed transaction) datastore.
       *
            PERFORM WRITE-TO-PROCTRAN.
+
+      *
+      *    If the PROCTRAN write succeeded (COMM-SUCCESS='Y') then
+      *    award loyalty points to the account holder.
+      *
+           IF COMM-SUCCESS = 'Y'
+              PERFORM UPDATE-LOYALTY-POINTS-DB2
+           END-IF.
 
        UAD999.
            EXIT.
@@ -660,6 +683,77 @@
            END-IF.
 
        WTPD999.
+           EXIT.
+
+
+       UPDATE-LOYALTY-POINTS-DB2 SECTION.
+       ULPD010.
+
+      *
+      *    Calculate integer points = floor( ABS( transaction amount ) )
+      *    1 point per £1 of transaction value.
+      *
+           COMPUTE WS-LOYALTY-POINTS-EARNED =
+              FUNCTION INTEGER(FUNCTION ABS(COMM-AMT)).
+
+      *
+      *    Capture the customer key from the account row already held
+      *    in memory after the ACCOUNT SELECT above.
+      *
+           MOVE HV-ACCOUNT-SORTCODE TO HV-LOYALTY-SORTCODE.
+           MOVE HV-ACCOUNT-CUST-NO  TO HV-LOYALTY-CUSTNO.
+
+      *
+      *    Add the earned points to the customer's running total,
+      *    treating a NULL current balance as zero (COALESCE).
+      *    Then recalculate the tier in a single UPDATE expression.
+      *
+      *    This UPDATE is NON-FATAL: a failure here must not roll back
+      *    the primary debit/credit transaction.
+      *
+           EXEC SQL
+               UPDATE CUSTOMER
+               SET LOYALTY_POINTS =
+                       COALESCE(LOYALTY_POINTS, 0)
+                       + :WS-LOYALTY-POINTS-EARNED,
+                   LOYALTY_TIER =
+                       CASE
+                         WHEN COALESCE(LOYALTY_POINTS, 0)
+                              + :WS-LOYALTY-POINTS-EARNED
+                              < 500
+                         THEN 'BRONZE'
+                         WHEN COALESCE(LOYALTY_POINTS, 0)
+                              + :WS-LOYALTY-POINTS-EARNED
+                              < 2000
+                         THEN 'SILVER'
+                         WHEN COALESCE(LOYALTY_POINTS, 0)
+                              + :WS-LOYALTY-POINTS-EARNED
+                              < 5000
+                         THEN 'GOLD'
+                         ELSE 'PLATINUM'
+                       END
+               WHERE CUSTOMER_SORTCODE = :HV-LOYALTY-SORTCODE
+               AND   CUSTOMER_NUMBER   = :HV-LOYALTY-CUSTNO
+           END-EXEC.
+
+      *
+      *    Non-fatal error handler: log a warning to the CSMT TD queue
+      *    and continue — do NOT roll back the primary transaction.
+      *
+           IF SQLCODE NOT = 0
+              MOVE SQLCODE TO WS-LOYALTY-WARN-SQLCODE
+              MOVE 'LOYALTY UPDATE FAILED - SEE SQLCODE'
+                 TO WS-LOYALTY-WARN-TXT
+              EXEC CICS WRITEQ TD
+                   QUEUE('CSMT')
+                   FROM(WS-LOYALTY-WARN-MSG)
+                   LENGTH(WS-LOYALTY-WARN-LEN)
+                   RESP(WS-CICS-RESP)
+                   RESP2(WS-CICS-RESP2)
+              END-EXEC
+           END-IF.
+
+       ULPD999.
            EXIT.
 
 

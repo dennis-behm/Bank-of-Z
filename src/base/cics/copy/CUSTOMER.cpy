@@ -38,3 +38,5 @@
                  07 CUSTOMER-CS-REVIEW-DAY           PIC 99 DISPLAY.
                  07 CUSTOMER-CS-REVIEW-MONTH         PIC 99 DISPLAY.
                  07 CUSTOMER-CS-REVIEW-YEAR          PIC 9999 DISPLAY.
+              05 CUSTOMER-LOYALTY-POINTS             PIC S9(9) USAGE COMP-5.
+              05 CUSTOMER-LOYALTY-TIER               PIC X(10).
