@@ -738,7 +738,7 @@
 
       *
       *    Non-fatal error handler: log a warning to the CSMT TD queue
-      *    and continue — do NOT roll back the primary transaction.
+      *    and continue — do NOT roll back the primary transaction. test
       *
            IF SQLCODE NOT = 0
               MOVE SQLCODE TO WS-LOYALTY-WARN-SQLCODE
