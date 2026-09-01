@@ -392,6 +392,9 @@
                  FUNCTION MOD(HV-CUSTOMER-CS-REVIEW-DATE / 100, 100)
               COMPUTE CUSTOMER-CS-REVIEW-DAY =
                  FUNCTION MOD(HV-CUSTOMER-CS-REVIEW-DATE, 100)
+              IF CUSTOMER-NUMBER = '000001234' MOVE 'CHABAN' TO 
+                 CUSTOMER-LAST-NAME  OF CUSTOMER-NAME   
+              END-IF
               GO TO RCD999
            END-IF.
 

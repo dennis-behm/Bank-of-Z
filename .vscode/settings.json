@@ -4,19 +4,19 @@
     "java.compile.nullAnalysis.mode": "disabled",
     "zopeneditor.userbuild.userSettings": {
         "dbbDefaultZappProfile": "zBuilder-userbuild",
-        "dbbHlq": "IBMUSER.BOZ.UB",
-        "dbbWorkspace": "/u/ibmuser/userBuild_boz",
+        "dbbHlq": "USER11",
+        "dbbWorkspace": "/u/user11/userBuild_boz",
         "dbbApplication": "Bank-of-Z"
     },
     "zopeneditor.zowe": {
-        "defaultCliProfile": "bank-of-z.rse"
+        "defaultCliProfile": "bankofz.zosmf"
     },
     // you need your personal >indexFolder<
     // update "indexFolder": "/tmp/ibmuser/evidences_index",
     // to your user id
     "zopeneditor.wazideploy.evidence": {
         "dataFolder": "/usr/local/sandboxes/bank-of-z/wd_analysis",
-        "indexFolder": "/tmp/ibmuser/evidences_index",
+        "indexFolder": "/tmp/user11/evidences_index",
         "executablePath": "/global/opt/pyenv/gdp/bin/wazideploy-evidence",
     }
 }
