@@ -1,0 +1,11 @@
+rules:
+  # Bank-of-Z naming convention rules
+  # Enforce that every COBOL PROGRAM-ID starts with exactly 2 letters,
+  # following the application source-member naming convention.
+  # Compliant examples: AXPATSRCH, AXTRMTSRCH, LGACDB01, INQCUST
+  # Non-compliant examples: 1STPROG, _UTIL, ABCDE (starts with only 1 letter prefix)
+  - id: zcodescan.cobol.rules.ProgramIdRuleXX
+    severity: HIGH
+    parameters:
+      - name: "ConventionMask"
+        value: "[A-Za-z]{2}.*"

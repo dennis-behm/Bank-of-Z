@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "skills": {
+    "mermaid": {
+      "source": "smithery.ai",
+      "sourceUrl": "https://smithery.ai/skills/BfdCampos/mermaid",
+      "sourceType": "well-known",
+      "computedHash": "c0a8ce2ab76afb3ba3f3978acf1a118cc855a9bb20b39ca7c76e8091c36fed01",
+      "wellKnownDigest": "sha256:2fee3aa5a138be992a8c6219d728e9aa382cd93dd2eed2912c43f971524ef4d1"
+    }
+  }
+}

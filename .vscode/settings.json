@@ -18,5 +18,6 @@
         "dataFolder": "/usr/local/sandboxes/bank-of-z/wd_analysis",
         "indexFolder": "/tmp/user11/evidences_index",
         "executablePath": "/global/opt/pyenv/gdp/bin/wazideploy-evidence",
-    }
+    },
+    "zopendebug.profileView.showWelcome": false
 }

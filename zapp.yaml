@@ -34,6 +34,7 @@ profiles:
       rules:
         - type: local
           locations:
+            - "zcodescan/bankofz-naming-rules.yaml"
             - "zcodescan/zcodescan-rules.yaml"
 
   - name: zBuilder-userbuild
