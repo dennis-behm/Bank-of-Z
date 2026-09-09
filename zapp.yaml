@@ -14,7 +14,7 @@ propertyGroups:
       - name: syslib
         type: local
         locations:
-          - '**'
+          - "**"
 
 profiles:
   # TAZ
@@ -26,7 +26,7 @@ profiles:
           - SYS1.PROCLIB # Required: Procedure libraries
         userLibraries:
           - BANKZ.V0R1M0.LOAD # Application load libraries
-          
+
   # Custom ZCodeScan rules example
   - name: zcodescan
     type: zcodescan
@@ -52,3 +52,44 @@ profiles:
         - "*.log" # Fetch build logs
         - "*.json" # Fetch Runtime.json and BuildReport.json
         - "*.html" # Fetch BuildReport.html
+
+  # User build v2 example 1: Regular Zowe-based DBB build
+  - name: zowe-upload-userbuild2
+    type: userbuild
+    settings:
+      tasks:
+        - dependencies:
+            additionalDependencies:
+              - dbb-app.yaml
+        - build:
+            remoteCommandShell: >
+              $DBB_HOME/bin/dbb build user --hlq ${dbbHlq} --errPrefix ${errPrefix} ${currentProgram}
+        - results:
+            logFilePatterns:
+              - "${application}/logs/*.log"
+              - "${application}/logs/*.json"
+              - "${application}/logs/BuildReport.html"
+
+  - name: git-based-userbuild
+    type: userbuild
+    settings:
+      tasks:
+        - upload:
+            localCommand: >
+              .zopeneditor/grub_client gitBundle --zoweProfile ${defaultZoweProfile}
+              --remoteWorkspace ${dbbWorkspace} --verbose
+        - custom:
+            localCommand: >
+              .vscode/createBuildList.sh BANKZ-main ${buildFile.basename} ${dbbWorkspace}
+        - build:
+            localCommand: >
+              .zopeneditor/grub_client execute --zoweProfile ${defaultZoweProfile}
+              --remoteWorkspace ${dbbWorkspace}/${application}
+              --command "$DBB_HOME/bin/dbb build user --hlq ${dbbHlq}
+              ${dbbWorkspace}/buildList.txt" --verbose
+        - post:
+            remoteCommand: >
+             rm ${dbbWorkspace}/user-build-logs.tar && tar -cf ${dbbWorkspace}/user-build-logs.tar ${dbbWorkspace}/${application}/logs/*
+            localCommand: >
+             zowe rse download uss-file "${dbbWorkspace}/user-build-logs.tar" 
+             tar -xf user-build-logs.tar
