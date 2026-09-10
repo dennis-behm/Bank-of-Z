@@ -58,7 +58,7 @@
        01 WS-SQLCODE-DISP              PIC 9(9) VALUE 0.
 
       * **************************************************************
-      * Pull in the input and output data structures
+      * Pull in the input and output data structures Tim is really cool
       * **************************************************************
 
 
