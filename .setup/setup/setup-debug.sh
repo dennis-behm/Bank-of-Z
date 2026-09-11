@@ -83,7 +83,12 @@ fi
 print_stage "Stage 3: Modify eqaprof.env to customize for BANKZ IMS"
 
 EQADREST_ENV="/etc/debug/eqadrest.env"
-cp "${EQADREST_ENV}" "${EQAPROF_CONF_DIR}/eqadrest.env"
+
+if [ -f "${EQADREST_ENV}" ]; then
+    cp "${EQADREST_ENV}" "${EQAPROF_CONF_DIR}/eqadrest.env"
+else
+    print_warning "${EQADREST_ENV} does not exists (maybe not installed)."
+fi
 
 python "$SCRIPTS_DIR/../lib/render_template.py" --configFile $CONFIG_FILE \
     --extraVar "ims_hlq=${IMS_APP_HLQ}" \
@@ -91,12 +96,29 @@ python "$SCRIPTS_DIR/../lib/render_template.py" --configFile $CONFIG_FILE \
     --extraVar "app_hlq=${APP_HLQ}" \
     --templateFile "$SCRIPTS_DIR/../debug_config/eqaprof.env.j2"  --outputFile "${EQAPROF_CONF_DIR}/eqaprof.env"
 
+# =======================================================
+# Stage 4: Grant RACF permissions for STCDBG user
+# =======================================================
+set +e
+print_stage "Stage 4: Granting RACF permissions for STCDBG..."
+run_tso "RDEFINE FACILITY BPX.SERVER UACC(NONE)"
+run_tso "PERMIT BPX.SERVER CLASS(FACILITY) ID(STCDBG) ACCESS(UPDATE)"
+run_tso "SETROPTS RACLIST(FACILITY) REFRESH"
+run_tso "RLIST FACILITY BPX.SERVER ALL"
+
+run_tso "RDEFINE SURROGAT BPX.SRV.** UACC(NONE)"
+run_tso "PERMIT BPX.SRV.** CLASS(SURROGAT) ID(STCDBG) ACCESS(READ)"
+run_tso "SETROPTS RACLIST(SURROGAT) REFRESH"
+run_tso "RLIST SURROGAT BPX.SRV.** ALL"
+set -e
+
+
 
 # ===================================
-# Stage 4: Start EQAPROF and EQARMTD
+# Stage 5: Start EQAPROF and EQARMTD
 # ===================================
 set +e
-print_stage "Stage 4: Start EQAPROF task"
+print_stage "Stage 5: Start EQAPROF task"
 opercmd -p "S EQAPROF,CFGDIR='${EQAPROF_CONF_DIR}'" 
 
 if netstat | grep -q "EQARMTD"
