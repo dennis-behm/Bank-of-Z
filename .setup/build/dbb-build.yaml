@@ -108,7 +108,8 @@ lifecycles:
       - Start
       - ScannerInit
       - MetadataInit
-      - ImpactAnalysis
+      #- ImpactAnalysis
+      - FullAnalysis
       - Languages    # Defined in Languages.yaml
       - VanillaFrontend
       - ServerXmlPackager
