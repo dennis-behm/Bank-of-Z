@@ -50,9 +50,9 @@ jobs:
             contents: read
             checks: write          # required by action-junit-report to create the check run
         steps:
-          #- name: scan-code-task
-          #  run: |
-          #      ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh scan"
+          - name: scan-code-task
+            run: |
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh scan"
 
           - name: execute-build-task
             run: |
