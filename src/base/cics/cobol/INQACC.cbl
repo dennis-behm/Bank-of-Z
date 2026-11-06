@@ -12,7 +12,7 @@
       * matching on the account number & the account_type.
       *
       * Should there be any issues, the program will abend.
-      *
+      * * 
       * Test August
       ******************************************************************
 
