@@ -225,7 +225,7 @@
 
       *
       *    Return the ACCOUNT data to the COMMAREA
-      * *
+      * **
 
            IF ACCOUNT-TYPE = SPACES OR LOW-VALUES
       * Trigger pipeline sample     
