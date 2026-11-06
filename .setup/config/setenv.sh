@@ -19,6 +19,9 @@ if [[ -f $HOME/.profile.bankz ]]; then
 fi
 
 export ROOT_FOLDER_NAME="$(basename "$(cd "$LOCAL_SCRIPTS_DIR/../.." && pwd)")"
+# Actual location of this repository checkout (may differ from sandbox.path).
+# Used by config.yaml as ${BOZ_REPO_DIR}; can be overridden from the shell.
+export BOZ_REPO_DIR="${BOZ_REPO_DIR:-$(cd "$LOCAL_SCRIPTS_DIR/../.." && pwd)}"
 
 if command -v chtag >/dev/null 2>&1; then
     chtag -t -c ISO8859-1 "$CONFIG_FILE"
@@ -28,7 +31,10 @@ set -e
 
 TEMPLATE_FILE="${LOCAL_SCRIPTS_DIR}/.env.template"
 
-if [[ ! -f "$ENV_FILE" || "$ENV_FILE" -ot "$CONFIG_FILE" || "$ENV_FILE" -ot "${BASH_SOURCE[0]}" ]]; then
+# Regenerate when .env is missing, older than its inputs, or was generated for
+# a different repository location (bash pattern match; no grep dependency).
+if [[ ! -f "$ENV_FILE" || "$ENV_FILE" -ot "$CONFIG_FILE" || "$ENV_FILE" -ot "${BASH_SOURCE[0]}" \
+      || "$(<"$ENV_FILE")" != *"DBB_CWD=\"${BOZ_REPO_DIR}/\""* ]]; then
     print_warning "Creating $ENV_FILE file ..."
     print_warning " - Not already exists or not in sync with:"
     print_warning "   - '$CONFIG_FILE'"
