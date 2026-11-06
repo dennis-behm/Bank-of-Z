@@ -52,7 +52,7 @@ jobs:
         steps:
           - name: scan-code-task
             run: |
-                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh scan"
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh scan && && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp -R ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/zcodescan/. ${{ env.uniqueWorkspaceId }}/logs"
 
           - name: execute-build-task
             run: |
