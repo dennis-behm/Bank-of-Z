@@ -71,7 +71,7 @@ jobs:
             if: ${{ always() }}
             uses: mikepenz/action-junit-report@v5
             with:
-                report_paths: ${{ runner.temp }}/build-logs/**/*.xml       # JUnit XML files from the unit test / scan tasks
+                report_paths: ${{ runner.temp }}/build-logs/**/*.eqatstr_junit.xml       # JUnit XML files from the unit test / scan tasks
                 check_name: Build Test Results
                 detailed_summary: true                                     # Render per-test results on the job summary page
                 include_passed: true
