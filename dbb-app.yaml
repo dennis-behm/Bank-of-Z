@@ -29,7 +29,7 @@ application:
             - "Bank-of-Z/src/base"
             - "Bank-of-Z/src/api/src/main/api"
             - "Bank-of-Z/src/frontend"
-            - "Bank-of-Z/test/unit"
+            - "Bank-of-Z/tests/unit"
 
         select:
            - condition: "${LIFECYCLE} == 'user'"
