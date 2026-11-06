@@ -199,8 +199,8 @@ tasks:
     variables:
      - name: scanners # List of DBB dependency source file scanner configurations.
        value: # Default - See scanner details below.    
-        - scanner: EDT-TESTS # Name of scanner.
-          extensions: test.cbl # Comma-separated list of file extensions associated to this scanner.
+        - scanner: EDT # Name of scanner.
+          extensions: "test.cbl" # Comma-separated list of file extensions associated to this scanner.
           source: groovy/EDTCobolUnitTestCaseScanner.groovy # (Optional) Java or Groovy class that implements the scanner logic.
 
   # create simple build list
