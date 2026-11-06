@@ -46,6 +46,9 @@ jobs:
         needs:
          - Setup
         runs-on: self-hosted
+        permissions:
+            contents: read
+            checks: write          # required by action-junit-report to create the check run
         steps:
           - name: scan-code-task
             run: |
@@ -64,6 +67,17 @@ jobs:
                 sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
         
+          - name: publish-test-results
+            if: ${{ always() }}
+            uses: mikepenz/action-junit-report@v5
+            with:
+                report_paths: ${{ runner.temp }}/build-logs/**/*.xml       # JUnit XML files from the unit test / scan tasks
+                check_name: Build Test Results
+                detailed_summary: true                                     # Render per-test results on the job summary page
+                include_passed: true
+                require_tests: false                                       # Do not fail if no JUnit files were produced
+                fail_on_failure: false                                     # Build task already determines pipeline status
+
           - name: upload-build-logs
             if: ${{ always() }}
             uses: actions/upload-artifact@v4
