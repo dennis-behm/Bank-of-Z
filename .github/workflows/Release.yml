@@ -61,7 +61,7 @@ jobs:
                 ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
                 rm -rf "${{ runner.temp }}/build-logs"
                 mkdir "${{ runner.temp }}/build-logs"
-                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
+                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "${{ runner.temp }}/build-logs"
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
 
           - name: UploadBuildLogs
@@ -132,7 +132,7 @@ jobs:
             run: |
               rm -rf "${{ runner.temp }}/deploy-logs-Integration/"
               mkdir "${{ runner.temp }}/deploy-logs-Integration/"
-              sftp -r ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs-Integration/* "\"${{ runner.temp }}/deploy-logs-Integration\""
+              sftp -r ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs-Integration/* "${{ runner.temp }}/deploy-logs-Integration"
 
           - name: Publish deployment logs
             uses: actions/upload-artifact@v4.0.0

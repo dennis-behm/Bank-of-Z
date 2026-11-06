@@ -80,7 +80,7 @@ jobs:
             run: |
               rm -rf "${{ runner.temp }}/deploy-logs-${{ env.environmentName }}"
               mkdir "${{ runner.temp }}/deploy-logs-${{ env.environmentName }}"
-              sftp -r ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs-${{ env.environmentName }}/* "\"${{ runner.temp }}/deploy-logs-${{ env.environmentName }}\""
+              sftp -r ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs-${{ env.environmentName }}/* "${{ runner.temp }}/deploy-logs-${{ env.environmentName }}"
 
           - name: Publish deployment logs
             if: ${{ env.packageType == 'release' }}

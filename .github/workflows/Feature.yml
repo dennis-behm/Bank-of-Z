@@ -64,7 +64,7 @@ jobs:
                 ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
                 rm -rf "${{ runner.temp }}/build-logs"
                 mkdir "${{ runner.temp }}/build-logs"
-                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
+                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "${{ runner.temp }}/build-logs"
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
         
           - name: publish-test-results
@@ -102,7 +102,7 @@ jobs:
                 ssh ${{ env.zosHost }} ". ./.profile && prepareLogs.sh -w ${{ env.uniqueWorkspaceId }}"
                 rm -rf "${{ runner.temp }}/build-logs"
                 mkdir "${{ runner.temp }}/build-logs"
-                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "\"${{ runner.temp }}/build-logs\""
+                sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "${{ runner.temp }}/build-logs"
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
         
           - name: upload-build-logs
