@@ -3,20 +3,46 @@
     "grub.serverRoot": "/usr/local/sandboxes/bank-of-z",
     "java.compile.nullAnalysis.mode": "disabled",
     "zopeneditor.userbuild.userSettings": {
-        "dbbDefaultZappProfile": "zBuilder-userbuild",
+        //"dbbDefaultZappProfile": "zBuilder-userbuild",
+        "dbbDefaultZappProfile": "BankOfZFullBuild",
         "dbbHlq": "IBMUSER.BOZ.UB",
         "dbbWorkspace": "/u/ibmuser/userBuild_boz",
         "dbbApplication": "Bank-of-Z"
     },
     "zopeneditor.zowe": {
-        "defaultCliProfile": "bank-of-z.rse"
+        "defaultCliProfile": "bank-of-z-local.rse"
     },
-    // you need your personal >indexFolder<
-    // update "indexFolder": "/tmp/ibmuser/evidences_index",
-    // to your user id
-    "zopeneditor.wazideploy.evidence": {
-        "dataFolder": "/usr/local/sandboxes/bank-of-z/wd_analysis",
-        "indexFolder": "/tmp/ibmuser/evidences_index",
-        "executablePath": "/global/opt/pyenv/gdp/bin/wazideploy-evidence",
+    // ── Early Development Testing (EDT / TAZ) ─────────────────────────────────
+    "edt.connectionProfileType": "ssh",
+    "edt.compileAndLink.cobolCompilerPath": "/usr/lpp/IBM/cobol/igyv6r5",
+    "edt.compileAndLink.copybookLocations": "EQAW.SEQASAMP",
+    "edt.compileAndLink.sigycompDataset": "IGY.V6R5M0.SIGYCOMP",
+    "edt.dataCollector": true,
+    "edt.dynamicTestEngineLocation": "EQAW.SEQAMOD",
+    "edt.logger": "DEBUG",
+    "edt.recordWithIntercepts": false,
+    "edt.runTests.edtCliBinPath": "/u/ibmuser/taz-edt-cli/test-cli",
+    "edt.runTests.zoauBinPath": "/usr/lpp/IBM/zoautil",
+    "edt.serverManager.logger": "DEBUG",
+    "edt.cli.logger": "DEBUG",
+    "edt.cli.verbose": true,
+    "edt.defaultZoweProfile": "bank-of-z-local.rse",
+    "edt.defaultDebugProfile": "bank-of-z-local.zOpenDebug",
+    "edt.runTests.keepFiles": "ALL",
+    "edt.runTests.javaHomePath": "/usr/lpp/java/java21/J21.0_64",
+    // ── zOpenDebug & Terminal ──────────────────────────────────────────────── 
+    "zopendebug.debugProfileService.apiLog": true,
+    "zopendebug.logger.logLevel": "DEBUG",
+    "testing.coverageToolbarEnabled": true,
+    "testing.coverageBarThresholds": {
+        "red": 0,
+        "yellow": 60,
+        "green": 90
+    },
+    "zopeneditor.zapp.variables": {
+        "ZOS_WORKSPACE": "/u/ibmuser/userBuild_boz",
+        "ZOS_HOST": "9.47.80.84",
+        "ZOS_USER": "IBMUSER"
     }
+
 }
