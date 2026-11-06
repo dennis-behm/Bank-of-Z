@@ -78,12 +78,10 @@ ZBUILDER_TARGET="{{ zbuilder.target_dir }}"
 
 # DBB
 DBB_HOME="{{ dbb.dbb_home }}"
-# DBB_BUILD="{{ dbb.dbb_build }}"
-DBB_BUILD="${DBB_BUILD:-{{ dbb.dbb_build }}}"
+DBB_BUILD="{{ dbb.dbb_build }}"
 DBB_CWD="{{ dbb.dbb_cwd }}"
 DBB_APP_CONF="{{ dbb.dbb_app_conf }}"
 DBB_LOG_FOLDER="${DBB_LOG_FOLDER:-{{ dbb.dbb_log_dir }}}"
-DBB_BUILD_PATH="${DBB_BUILD:-{{ dbb.dbb_build }}}"
 
 # Wazi Deploy
 DEPLOY_WAZIDEPLOY_HOME="${DEPLOY_WAZIDEPLOY_HOME:-{{ wazideploy.wazideploy_home }}}"
