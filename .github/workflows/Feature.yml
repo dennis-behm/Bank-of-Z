@@ -47,9 +47,13 @@ jobs:
          - Setup
         runs-on: self-hosted
         steps:
+          - name: scan-code-task
+            run: |
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh scan"
+
           - name: execute-build-task
             run: |
-                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp /usr/local/sandboxes/bank-of-z/logs/dbb/*.* ${{ env.uniqueWorkspaceId }}/logs"
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp ${{ env.uniqueWorkspaceId }}/${{ application }}/logs/*.* ${{ env.uniqueWorkspaceId }}/logs"
 
           - name: prepare-logs
             if: ${{ always() }}
