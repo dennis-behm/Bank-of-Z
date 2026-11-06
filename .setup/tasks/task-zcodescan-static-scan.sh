@@ -108,6 +108,10 @@ fi
 
 BUILD_LIST=$(sed -n 's/.*\[BUILD-LIST\][[:space:]]*//p' "$TMP_LOG" | tail -1)
 
+# The DBB build list contains paths relative to the DBB workspace, i.e. the
+# parent directory of the repository (e.g. "Bank-of-Z/src/base/..."). Run the
+# scan from there instead of the static sandbox path from config.yaml.
+SCAN_CWD_FOLDER="$(dirname "${BOZ_REPO_DIR}")"
 cd "${SCAN_CWD_FOLDER}"
 source "${SCAN_PYENV_ACTIVATE_PATH}"
 
