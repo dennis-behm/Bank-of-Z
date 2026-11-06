@@ -53,7 +53,7 @@ jobs:
 
           - name: execute-build-task
             run: |
-                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp ${{ env.uniqueWorkspaceId }}/${{ application }}/logs/*.* ${{ env.uniqueWorkspaceId }}/logs"
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/*.* ${{ env.uniqueWorkspaceId }}/logs"
 
           - name: prepare-logs
             if: ${{ always() }}
