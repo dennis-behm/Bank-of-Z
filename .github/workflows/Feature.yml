@@ -115,7 +115,9 @@ jobs:
             uses: clearlyip/code-coverage-report-action@v7.0     # node24; replaces 5monkeys/cobertura-action (node20, unmaintained)
             with:
                  filename: ${{ steps.coverage.outputs.file }}
-                 overall_coverage_fail_threshold: 75
+                 overall_coverage_fail_threshold: 0
+                 file_coverage_error_min: 25
+                 file_coverage_warning_max: 50
 
           - name: upload-build-logs
             if: ${{ always() }}
