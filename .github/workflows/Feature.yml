@@ -110,7 +110,7 @@ jobs:
             uses: 5monkeys/cobertura-action@master
             with:
                  path: ${{ steps.coverage.outputs.file }}
-                 mnimum_coverage: 75          
+                 minimum_coverage: 75
 
           - name: upload-build-logs
             if: ${{ always() }}
