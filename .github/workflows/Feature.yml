@@ -49,6 +49,7 @@ jobs:
         permissions:
             contents: read
             checks: write          # required by action-junit-report to create the check run
+            pull-requests: read    # required by upload-code-coverage (resolves PR context via gh CLI)
         steps:
           - name: scan-code-task
             run: |
@@ -86,9 +87,18 @@ jobs:
                 require_tests: false                                       # Do not fail if no JUnit files were produced
                 fail_on_failure: false                                     # Build task already determines pipeline status
 
+          - name: locate-coverage-report
+            id: coverage
+            run: |
+                command -v gh >/dev/null || { echo "gh CLI is not installed on this runner"; exit 1; }
+                # the Cobertura file is copied from z/OS into build-logs/cc by the build task
+                report=$(find "${{ runner.temp }}/build-logs" -name '*CCCOBERTURA.xml' | head -n 1)
+                if [ -z "$report" ]; then echo "No Cobertura report found"; exit 1; fi
+                echo "file=$report" >> "$GITHUB_OUTPUT"
+
           - uses: actions/upload-code-coverage@v1
             with:
-                file: INQCUST_2026_11_10_091422_0729_CCCOBERTURA.xml
+                file: ${{ steps.coverage.outputs.file }}
                 language: Cobol
                 label: code-coverage/ci
 
