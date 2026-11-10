@@ -97,7 +97,11 @@ jobs:
                 # the Cobertura file is copied from z/OS into build-logs/cc by the build task
                 report=$(find "${{ runner.temp }}/build-logs" -name '*CCCOBERTURA.xml' | head -n 1)
                 if [ -z "$report" ]; then echo "No Cobertura report found"; exit 1; fi
-                echo "file=$report" >> "$GITHUB_OUTPUT"
+                # code-coverage-report-action requires the file to be inside $GITHUB_WORKSPACE
+                mkdir -p "$GITHUB_WORKSPACE/coverage"
+                rm -f "$GITHUB_WORKSPACE"/coverage/*.xml
+                cp "$report" "$GITHUB_WORKSPACE/coverage/cobertura.xml"
+                echo "file=coverage/cobertura.xml" >> "$GITHUB_OUTPUT"
           
           #- name: upload-code-coverage
           #  uses: actions/upload-code-coverage@v1
