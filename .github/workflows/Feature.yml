@@ -97,13 +97,19 @@ jobs:
                 report=$(find "${{ runner.temp }}/build-logs" -name '*CCCOBERTURA.xml' | head -n 1)
                 if [ -z "$report" ]; then echo "No Cobertura report found"; exit 1; fi
                 echo "file=$report" >> "$GITHUB_OUTPUT"
-
-          - uses: actions/upload-code-coverage@v1
+          
+          #- name: upload-code-coverage
+          #  uses: actions/upload-code-coverage@v1
+          #  with:
+          #      file: ${{ steps.coverage.outputs.file }}
+          #      language: Java
+          #      label: code-coverage/jacoco
+          #      fail-on-error: false
+          
+          - name: code-coverage-summary-report
+            uses: irongut/CodeCoverageSummary@v1.3.0
             with:
-                file: ${{ steps.coverage.outputs.file }}
-                language: Cobol
-                label: code-coverage/taz
-                fail-on-error: false
+                file: ${{ steps.coverage.outputs.file }}                
 
           - name: upload-build-logs
             if: ${{ always() }}
@@ -148,5 +154,5 @@ jobs:
         if: always()
         steps:
           - name: cleanup-workspace
-            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace-2.sh -w ${{ env.uniqueWorkspaceId }}"
+            run: ssh ${{ env.zosHost }} ". ./.profile && deleteWorkspace.sh -w ${{ env.uniqueWorkspaceId }}"
             
