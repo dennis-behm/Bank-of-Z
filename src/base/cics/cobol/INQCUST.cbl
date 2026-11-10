@@ -19,8 +19,8 @@
       * issued.
       *
       ******************************************************************
-      * 
-      
+      ** 
+
        IDENTIFICATION DIVISION.
        PROGRAM-ID. INQCUST.
        AUTHOR. Jon Collett.
