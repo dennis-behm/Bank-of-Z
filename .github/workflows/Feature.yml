@@ -99,24 +99,16 @@ jobs:
                 sparse-checkout: .github/scripts
                 sparse-checkout-cone-mode: true
 
-          - name: publish-zcodescan-summary
-            if: ${{ always() }}
-            run: |
-                report=$(find "${{ runner.temp }}/build-logs" -name 'zcs_export_sonarqube.json' | head -n 1)
-                if [ -z "$report" ]; then echo "No ZCodeScan SonarQube report found"; exit 0; fi
-                python3 .github/scripts/zcodescan-summary.py "$report" --repo "${{ github.repository }}" --sha "${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
-
           - name: locate-coverage-report
             id: coverage
             run: |
                 command -v gh >/dev/null || { echo "gh CLI is not installed on this runner"; exit 1; }
-                # the Cobertura file is copied from z/OS into build-logs/cc by the build task
-                report=$(find "${{ runner.temp }}/build-logs" -name '*CCCOBERTURA.xml' | head -n 1)
-                if [ -z "$report" ]; then echo "No Cobertura report found"; exit 1; fi
+                # the Cobertura files are copied from z/OS into build-logs/cc by the build task
+                # there may be several reports for the same file; merge them into a single report (hits are summed per line)
                 # code-coverage-report-action requires the file to be inside $GITHUB_WORKSPACE
                 mkdir -p "$GITHUB_WORKSPACE/coverage"
                 rm -f "$GITHUB_WORKSPACE"/coverage/*.xml
-                cp "$report" "$GITHUB_WORKSPACE/coverage/cobertura.xml"
+                python3 .github/scripts/merge-cobertura.py "${{ runner.temp }}/build-logs" "$GITHUB_WORKSPACE/coverage/cobertura.xml"
                 echo "file=coverage/cobertura.xml" >> "$GITHUB_OUTPUT"
           
           #- name: upload-code-coverage
@@ -134,6 +126,14 @@ jobs:
                  overall_coverage_fail_threshold: 0
                  file_coverage_error_min: 25
                  file_coverage_warning_max: 50
+
+          - name: publish-zcodescan-summary
+            if: ${{ always() }}
+            run: |
+                report=$(find "${{ runner.temp }}/build-logs" -name 'zcs_export_sonarqube.json' | head -n 1)
+                if [ -z "$report" ]; then echo "No ZCodeScan SonarQube report found"; exit 0; fi
+                python3 .github/scripts/zcodescan-summary.py "$report" --repo "${{ github.repository }}" --sha "${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+
 
           - name: upload-build-logs
             if: ${{ always() }}
