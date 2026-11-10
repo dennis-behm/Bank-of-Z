@@ -92,6 +92,20 @@ jobs:
                 require_tests: false                                       # Do not fail if no JUnit files were produced
                 fail_on_failure: false                                     # Build task already determines pipeline status
 
+          - name: checkout-ci-scripts
+            if: ${{ always() }}
+            uses: actions/checkout@v4
+            with:
+                sparse-checkout: .github/scripts
+                sparse-checkout-cone-mode: true
+
+          - name: publish-zcodescan-summary
+            if: ${{ always() }}
+            run: |
+                report=$(find "${{ runner.temp }}/build-logs" -name 'zcs_export_sonarqube.json' | head -n 1)
+                if [ -z "$report" ]; then echo "No ZCodeScan SonarQube report found"; exit 0; fi
+                python3 .github/scripts/zcodescan-summary.py "$report" --repo "${{ github.repository }}" --sha "${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+
           - name: locate-coverage-report
             id: coverage
             run: |
