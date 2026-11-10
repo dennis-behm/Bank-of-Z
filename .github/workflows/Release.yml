@@ -65,7 +65,7 @@ jobs:
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
 
           - name: UploadBuildLogs
-            uses: actions/upload-artifact@v4
+            uses: actions/upload-artifact@v7
             with:
               name: build_${{github.run_number }}                        # Name used for artifact when it is uploaded
               path: ${{ runner.temp }}/build-logs                        # Path to build logs artifacts
@@ -97,7 +97,7 @@ jobs:
               echo "${nextReleaseVersion}" > releaseTag.txt
 
           - name: Upload version tag artifact
-            uses: actions/upload-artifact@v4
+            uses: actions/upload-artifact@v7
             with:
               name: artifactVersion
               path: releaseTag.txt 
@@ -135,7 +135,7 @@ jobs:
               sftp -r ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs-Integration/* "${{ runner.temp }}/deploy-logs-Integration"
 
           - name: Publish deployment logs
-            uses: actions/upload-artifact@v4.0.0
+            uses: actions/upload-artifact@v7
             with:
               path: "${{ runner.temp }}/deploy-logs-Integration/"
               name: "artifact-Integration"

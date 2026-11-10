@@ -84,7 +84,7 @@ jobs:
 
           - name: Publish deployment logs
             if: ${{ env.packageType == 'release' }}
-            uses: actions/upload-artifact@v4.0.0
+            uses: actions/upload-artifact@v7
             with:
               path: "${{ runner.temp }}/deploy-logs-${{ env.environmentName }}/"
               name: "artifact-${{ env.environmentName }}" 

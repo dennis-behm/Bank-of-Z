@@ -62,7 +62,7 @@ jobs:
       
         - name: Upload build logs
           if: ${{ always() }}
-          uses: actions/upload-artifact@v4
+          uses: actions/upload-artifact@v7
           with:
               name: build_${{github.run_number }}                        # Name used for artifact when it is uploaded
               path: ${{ runner.temp }}/build-logs                        # Path to build logs artifacts
