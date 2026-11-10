@@ -85,7 +85,7 @@ application:
               dependencyPatterns:
                 - ${APP_DIR_NAME}/src/**/*.cpy   # COPY member (copybook)
                 - ${APP_DIR_NAME}/src/**/*.bms   # BMS map source
-                - ${APP_DIR_NAME}/src/**/.cbl    # Statically CALLed program
+                - ${APP_DIR_NAME}/src/**/*.cbl    # Statically CALLed program
 
             # Link-card dependencies: each .lnk file may reference
             # one or more COBOL object modules to be link-edited.
@@ -96,7 +96,7 @@ application:
             # Unit Test 
             - languageExt: test.cbl
               dependencyPatterns:
-                 - ${APP_DIR_NAME}/src/**/.cbl
+                 - ${APP_DIR_NAME}/src/**/*.cbl
 
     # ----------------------------------------------------------
     # Cobol task
