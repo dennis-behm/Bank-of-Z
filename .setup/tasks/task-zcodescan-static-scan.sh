@@ -84,17 +84,8 @@ trap finalize_results EXIT
 # =========================
 print_info "Running DBB in preview mode to get the list of sources to scan"
 
-bash "$SCRIPTS_DIR/../tasks/task-dbb-build.sh" preview 2>&1 | tee "$TMP_LOG" | while read -r line
-do
-    case "$line" in
-        ">"*)
-            print_info "${line#> }"
-            ;;
-        *)
-            print_info "$line"
-            ;;
-    esac
-done
+# Output is captured in $TMP_LOG for parsing below, but not printed
+bash "$SCRIPTS_DIR/../tasks/task-dbb-build.sh" preview > "$TMP_LOG" 2>&1 || true
 
 if grep -q "ERROR" "$TMP_LOG"; then
     print_error "DBB build failed"
@@ -107,6 +98,30 @@ if grep -q "Total files processed : 0$" "$TMP_LOG"; then
 fi
 
 BUILD_LIST=$(sed -n 's/.*\[BUILD-LIST\][[:space:]]*//p' "$TMP_LOG" | tail -1)
+
+# Exclude test sources (any path containing a "tests" folder) from the scan.
+# The original DBB build list is left untouched; a filtered copy is scanned.
+if [ -n "${BUILD_LIST:-}" ] && [ -f "$BUILD_LIST" ]; then
+    FILTERED_BUILD_LIST="${BUILD_LIST%.txt}_scan.txt"
+    : > "$FILTERED_BUILD_LIST"
+    while IFS= read -r src || [ -n "$src" ]; do
+        [ -z "$src" ] && continue
+        case "$src" in
+            tests/*|*/tests/*)
+                print_info "Omitted from scan (tests folder): $src"
+                ;;
+            *)
+                echo "$src" >> "$FILTERED_BUILD_LIST"
+                ;;
+        esac
+    done < "$BUILD_LIST"
+
+    if [ ! -s "$FILTERED_BUILD_LIST" ]; then
+        print_info "No files left to scan after excluding tests - nothing to scan"
+        exit 0
+    fi
+    BUILD_LIST="$FILTERED_BUILD_LIST"
+fi
 
 # The DBB build list contains paths relative to the DBB workspace, i.e. the
 # parent directory of the repository (e.g. "Bank-of-Z/src/base/..."). Run the
