@@ -78,6 +78,8 @@ jobs:
                 mkdir "${{ runner.temp }}/build-logs"
                 sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "${{ runner.temp }}/build-logs"
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
+                # the unit test runner writes classname="<PROGRAM>.unknown"; drop the ".unknown" suffix for the test report
+                find "${{ runner.temp }}/build-logs" -name '*.eqatstr_junit.xml' -exec sed -i 's/\(classname="[^"]*\)\.unknown"/\1"/g' {} +
         
           - name: publish-test-results
             if: ${{ always() }}
