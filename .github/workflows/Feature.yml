@@ -50,6 +50,7 @@ jobs:
             contents: read
             checks: write          # required by action-junit-report to create the check run
             pull-requests: read    # required by upload-code-coverage (resolves PR context via gh CLI)
+            code-quality: write    # required by upload-code-coverage to upload coverage data
         steps:
           - name: scan-code-task
             run: |
