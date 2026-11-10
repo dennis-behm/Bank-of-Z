@@ -56,7 +56,15 @@ jobs:
 
           - name: execute-build-task
             run: |
-                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp -R ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/. ${{ env.uniqueWorkspaceId }}/logs"
+                ssh ${{ env.zosHost }} << 'EOF'
+                  . ./.profile
+                  cd ${{ env.uniqueWorkspaceId }}/${{ env.application }}
+                  bash .setup/pipeline-common.sh build
+                  mkdir -p ${{ env.uniqueWorkspaceId }}/logs
+                  cp -R ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/. ${{ env.uniqueWorkspaceId }}/logs
+                  mkdir ${{ env.uniqueWorkspaceId }}/logs/cc
+                  cp -R /var/debug/code_coverage_collector_output/IBMUSER/*CCC*/. ${{ env.uniqueWorkspaceId }}/logs/cc
+                EOF
 
           - name: prepare-logs
             if: ${{ always() }}
@@ -77,6 +85,12 @@ jobs:
                 include_passed: true
                 require_tests: false                                       # Do not fail if no JUnit files were produced
                 fail_on_failure: false                                     # Build task already determines pipeline status
+
+          - uses: actions/upload-code-coverage@v1
+            with:
+                file: INQCUST_2026_11_10_091422_0729_CCCOBERTURA.xml
+                language: Cobol
+                label: code-coverage/ci
 
           - name: upload-build-logs
             if: ${{ always() }}
