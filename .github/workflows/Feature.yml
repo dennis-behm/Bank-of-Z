@@ -94,7 +94,7 @@ jobs:
 
           - name: checkout-ci-scripts
             if: ${{ always() }}
-            uses: actions/checkout@v4
+            uses: actions/checkout@v6
             with:
                 sparse-checkout: .github/scripts
                 sparse-checkout-cone-mode: true
