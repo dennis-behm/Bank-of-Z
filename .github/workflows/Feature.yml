@@ -111,8 +111,14 @@ jobs:
                 # code-coverage-report-action requires the file to be inside $GITHUB_WORKSPACE
                 mkdir -p "$GITHUB_WORKSPACE/coverage"
                 rm -f "$GITHUB_WORKSPACE"/coverage/*.xml
-                python3 .github/scripts/merge-cobertura.py "${{ runner.temp }}/build-logs" "$GITHUB_WORKSPACE/coverage/cobertura.xml"
-                echo "file=coverage/cobertura.xml" >> "$GITHUB_OUTPUT"
+                if [ -d "${{ runner.temp }}/build-logs" ] && [ -n "$(find "${{ runner.temp }}/build-logs" -name '*CCCOBERTURA.xml' -print -quit 2>/dev/null)" ]; then
+                    python3 .github/scripts/merge-cobertura.py "${{ runner.temp }}/build-logs" "$GITHUB_WORKSPACE/coverage/cobertura.xml"
+                    echo "file=coverage/cobertura.xml" >> "$GITHUB_OUTPUT"
+                    echo "found=true" >> "$GITHUB_OUTPUT"
+                else
+                    echo "No Cobertura report found"
+                    echo "found=false" >> "$GITHUB_OUTPUT"
+                fi
           
           #- name: upload-code-coverage
           #  uses: actions/upload-code-coverage@v1
@@ -123,6 +129,7 @@ jobs:
           #      fail-on-error: false
           
           - name: code-coverage-summary-report
+            if: steps.coverage.outputs.found == 'true'
             uses: clearlyip/code-coverage-report-action@v7.0     # node24; replaces 5monkeys/cobertura-action (node20, unmaintained)
             with:
                  filename: ${{ steps.coverage.outputs.file }}
