@@ -43,6 +43,10 @@
         "ZOS_WORKSPACE": "/u/ibmuser/userBuild_boz",
         "ZOS_HOST": "9.47.80.84",
         "ZOS_USER": "IBMUSER"
+    },
+    "zopeneditor.wazideploy.evidence": {
+        "dataFolder": "/u/ibmuser/wd_evidences",
+        "indexFolder": "/u/ibmuser/wd_evidences_index",
+        "executablePath": "/global/opt/pyenv/gdp/bin/wazideploy-evidence",
     }
-
 }
