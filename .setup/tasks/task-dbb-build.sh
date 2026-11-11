@@ -108,7 +108,7 @@ else
 
     BUILD_TYPE="pipeline"
 
-    if [ "$APP_FULL_VERSION" ]; then
+    if [ -n "$APP_FULL_VERSION" ]; then
         timestamp=$(date +%F_%H-%M-%S)
         buildOpts="--build-id ${APP_FULL_VERSION}-${timestamp}"
 
