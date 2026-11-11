@@ -133,11 +133,14 @@ print_info "========================================="
 print_info "BankZ Deployment"
 print_info "========================================="
 
+timestamp=$(date +%F_%H-%M-%S)
+
 print_info "Starting wazideploy-generate for BankZ"
 : > "${OUTPUT_FOLDER}/wazideploy-generate-bankz.console.log"
 CMD="wazideploy-generate \
  --deploymentPlanName $APP_BASE_NAME \
- --deploymentMethod $DEPLOY_DEPLOYMENT_METHOD \
+ --deploymentMethod $DEPLOY_DEPLOYMENT_METHOD_timestamp \
+ --deploymentPlanVersion $APP_FULL_VERSION \ 
  --deploymentPlan $OUTPUT_FOLDER/deploymentPlan-bankz.yaml \
  --deploymentPlanReport $OUTPUT_FOLDER/deploymentPlanReport-bankz.html \
  --packageInputFile $PACKAGE_URL"
