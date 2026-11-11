@@ -62,12 +62,15 @@ jobs:
                 ssh ${{ env.zosHost }} << 'EOF'
                   . ./.profile
                   cd ${{ env.uniqueWorkspaceId }}/${{ env.application }}
+                  rm -rf /var/debug/code_coverage_collector_output/IBMUSER/* 2>/dev/null || true
                   bash .setup/pipeline-common.sh build
+                  BUILD_RC=$?
                   mkdir -p ${{ env.uniqueWorkspaceId }}/logs
-                  cp -R ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/. ${{ env.uniqueWorkspaceId }}/logs
-                  mkdir ${{ env.uniqueWorkspaceId }}/logs/cc
-                  cp -R /var/debug/code_coverage_collector_output/IBMUSER/*CCC*/. ${{ env.uniqueWorkspaceId }}/logs/cc
-                  chtag -tc UTF-8 ${{ env.uniqueWorkspaceId }}/logs/cc/*.xml
+                  cp -R ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/. ${{ env.uniqueWorkspaceId }}/logs 2>/dev/null || true
+                  mkdir -p ${{ env.uniqueWorkspaceId }}/logs/cc
+                  cp -R /var/debug/code_coverage_collector_output/IBMUSER/*CCC*/. ${{ env.uniqueWorkspaceId }}/logs/cc 2>/dev/null || true
+                  chtag -tc UTF-8 ${{ env.uniqueWorkspaceId }}/logs/cc/*.xml 2>/dev/null || true
+                  exit $BUILD_RC
                 EOF
 
           - name: prepare-logs
