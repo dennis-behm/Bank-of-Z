@@ -211,7 +211,13 @@ RC=${PIPESTATUS[0]}
 if [ $RC -ne 0 ]; then
     print_error "Deployment failed with RC=$RC"
     exit $RC
+else
+    mkdir -p /u/ibmuser/wd_evidences/${timestamp}
+    cp ${EVIDENCE_FOLDER}/evidence-bankz.yaml /u/ibmuser/wd_evidences/${timestamp}/
+    print_info "[DEPLOY-${APP_BASE_NAME}] Evidence file saved to /u/ibmuser/wd_evidences/${timestamp}/evidence-bankz.yaml"
 fi
+
+
 
 print_success "Deployment completed successfully"
 print_success "BankZ deployment completed successfully"
