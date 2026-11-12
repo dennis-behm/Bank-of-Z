@@ -9,12 +9,12 @@
       *
       * Program: INQCUST
       * Data origin: Generated
-      * Data source: /Users/monvorath/datGitWorkspaces/Bank-of-Z/.edt-un
-      *    it-test/testdata/test_INQCUST/testData1.json
+      * Data source: /Users/dennisbehm/git/Bank-of-Z/.edt-unit-test/test
+      *    data/test_INQCUST/testData1.json
       * Codepage: IBM1047
       *
-      * Test ID: b77cdc89-24ed-4a6b-8061-b041cf6864f0
-      * Generated: 11/03/2026 15:17
+      * Test ID: 47e5f5c3-7efc-4c12-8cef-fa937c1bebe6
+      * Generated: 11/12/2026 12:54
       *-----------------------------------------------------------------
        IDENTIFICATION DIVISION.
        PROGRAM-ID. 'BEFORE_ALL'.
@@ -25,7 +25,7 @@
            03 NUM-TESTS          PIC  9(05) COMP VALUE 1.
            03 TEST-CASE-TYPE     PIC  X(04)      VALUE 'CICS'.
            03 TEST-CASE-UUID     PIC  X(36)
-                           VALUE 'b77cdc89-24ed-4a6b-8061-b041cf6864f0'.
+                           VALUE '47e5f5c3-7efc-4c12-8cef-fa937c1bebe6'.
            03 FILLER             PIC  X(128).
            03 TEST-ARRAY             OCCURS 1 TIMES.
              05 TEST-UUID        PIC  X(36).
@@ -47,7 +47,7 @@
       *****************************************************************
            MOVE 'TEST1' TO TEST-NAME(1).
            MOVE 'TEST_TEST1' TO TEST-EP-NAME(1).
-           MOVE '42a27117-ee66-4766-a5a9-d81dd5a5d723'
+           MOVE '2a42e3a9-f690-4f19-a8fc-0821145182cf'
                TO TEST-UUID(1).
       *****************************************************************
       * Inform the engine of the test case configuration
@@ -221,7 +221,7 @@
            MOVE AZU0000000C TO INQCUST-INQ-SUCCESS
            MOVE AZU0000000D TO INQCUST-INQ-FAIL-CD
            MOVE AZU0000000E TO INQCUST-PCB-POINTER
-           MOVE X'0093000C0126307CD6C4C3E20019444CF0F0F0F1000000000193C5
+           MOVE X'0093000C0126314CC9D5D8C30019444CF0F0F0F1000000000193C5
       -    'D3C940404040404040404040404040404040404040404040404040404040
       -    '40404040404040404040404040404040404040000000000000000040' TO
             Dfheiblk
@@ -461,7 +461,7 @@
        01  TEST-NAME-LENGTH    PIC S9(04) COMP-5 VALUE ZERO.
        01  TEST-NAME-TRIMMED   PIC  X(80)        VALUE SPACES.
        01  UNIQUE-TEST-ID      PIC  X(36)
-                           VALUE 'b77cdc89-24ed-4a6b-8061-b041cf6864f0'.
+                           VALUE '47e5f5c3-7efc-4c12-8cef-fa937c1bebe6'.
        LINKAGE SECTION.
        01  TEST-NAME           PIC  X(80).
        01  TEST-ID             PIC  X(80).
@@ -1014,7 +1014,7 @@
            IF AZ-RECORD-COUNT-IN(1) = 0
              NEXT SENTENCE
            ELSE IF AZ-RECORD-COUNT-IN(1) = 1
-           MOVE X'0093000C0126307CD6C4C3E20019444CF0F0F0F1000000000000C5
+           MOVE X'0093000C0126314CC9D5D8C30019444CF0F0F0F1000000000000C5
       -    'D9C540404040404040404040404040404040404040404040404040404040
       -    '40404040404040404040404040404040404040000000000000000040' TO
             Dfheiblk
@@ -2333,35 +2333,25 @@
            03 AZU00000003 PIC X(6) VALUE '987654'.
            03 AZU00000004 PIC X(10) VALUE '0000000042'.
            03 AZU00000005.
-             05 PIC X(2) VALUE 'Mr'.
-             05 PIC X(8) VALUE SPACES.
+             05 PIC X(3) VALUE 'Mrs'.
            03 AZU00000006.
-             05 PIC X(6) VALUE 'Andrew'.
-             05 PIC X(44) VALUE SPACES.
+             05 PIC X(5) VALUE 'Priya'.
            03 AZU00000007.
-             05 PIC X(9) VALUE 'Pritchard'.
-             05 PIC X(41) VALUE SPACES.
+             05 PIC X(6) VALUE 'Sharma'.
            03 AZU00000008.
-             05 PIC X(13) VALUE '0161 555 0142'.
-             05 PIC X(7) VALUE SPACES.
+             05 PIC X(13) VALUE '020 7946 0321'.
            03 AZU00000009.
-             05 PIC X(15) VALUE '12 Orchard Lane'.
-             05 PIC X(35) VALUE SPACES.
+             05 PIC X(13) VALUE '8 Mill Street'.
            03 AZU0000000A.
-             05 PIC X(8) VALUE 'Didsbury'.
-             05 PIC X(42) VALUE SPACES.
+             05 PIC X(8) VALUE 'Chorlton'.
            03 AZU0000000B.
              05 PIC X(10) VALUE 'Manchester'.
-             05 PIC X(40) VALUE SPACES.
            03 AZU0000000C.
-             05 PIC X(7) VALUE 'M20 2RT'.
-             05 PIC X(3) VALUE SPACES.
+             05 PIC X(7) VALUE 'M21 9AB'.
            03 AZU0000000D.
              05 PIC X(14) VALUE 'United Kingdom'.
-             05 PIC X(36) VALUE SPACES.
            03 AZU0000000E.
              05 PIC X(6) VALUE 'ACTIVE'.
-             05 PIC X(4) VALUE SPACES.
        01  AZ-SQLCA.
            03 AZS00000000 PIC X(136) VALUE
            X'40404040404040400000008800000000000000000000000000000000000
@@ -2653,7 +2643,7 @@
            MOVE AZU00000005 TO HV-CUSTOMER-TITLE
            MOVE AZU00000006 TO HV-CUSTOMER-FIRST-NAME
            MOVE AZU00000007 TO HV-CUSTOMER-LAST-NAME
-           MOVE 19800615 TO HV-CUSTOMER-DOB
+           MOVE 19900223 TO HV-CUSTOMER-DOB
            MOVE AZU00000008 TO HV-CUSTOMER-PHONE
            MOVE AZU00000009 TO HV-CUSTOMER-ADDR-LINE1
            MOVE AZU0000000A TO HV-CUSTOMER-ADDR-LINE2
@@ -2661,9 +2651,9 @@
            MOVE AZU0000000C TO HV-CUSTOMER-POSTCODE
            MOVE AZU0000000D TO HV-CUSTOMER-COUNTRY
            MOVE AZU0000000E TO HV-CUSTOMER-STATUS
-           MOVE 20150312 TO HV-CUSTOMER-CREATE-DATE
-           MOVE 720 TO HV-CUSTOMER-CREDIT-SCORE
-           MOVE 20260301 TO HV-CUSTOMER-CS-REVIEW-DATE
+           MOVE 20180704 TO HV-CUSTOMER-CREATE-DATE
+           MOVE 680 TO HV-CUSTOMER-CREDIT-SCORE
+           MOVE 20260915 TO HV-CUSTOMER-CS-REVIEW-DATE
            ELSE
              NEXT SENTENCE
            .
