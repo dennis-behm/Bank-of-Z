@@ -140,44 +140,44 @@ rm -f ./*.log
 mkdir -p "$LOG_DIR"
 
 print_info "Starting ZCodeScan analysis ..."
-# -------------------------
-# TRACE: where do the scan paths come from?
-# -------------------------
-print_info "[TRACE] ---- ZCodeScan input trace ----"
-print_info "[TRACE] script            : ${BASH_SOURCE[0]}"
-print_info "[TRACE] SCRIPTS_DIR       : ${SCRIPTS_DIR}"
-print_info "[TRACE] PWD               : $(pwd)"
-print_info "[TRACE] EXECUTION_MODE    : ${EXECUTION_MODE:-<unset>}"
-print_info "[TRACE] BANK_DIR          : ${BANK_DIR:-<unset>}"
-print_info "[TRACE] BOZ_REPO_DIR      : ${BOZ_REPO_DIR:-<unset>}"
-print_info "[TRACE] SANDBOX_DIR       : ${SANDBOX_DIR:-<unset>}"
-print_info "[TRACE] SCAN_SOURCE_FOLDER: ${SCAN_SOURCE_FOLDER:-<unset>}"
-print_info "[TRACE] SCAN_CWD_FOLDER   : ${SCAN_CWD_FOLDER:-<unset>}"
-print_info "[TRACE] SCAN_RULE_FILE    : ${SCAN_RULE_FILE:-<unset>}"
-print_info "[TRACE] SCAN_CONFIG_FILE  : ${SCAN_CONFIG_FILE:-<unset>}"
-print_info "[TRACE] SCAN_OUTPUT_FILE  : ${SCAN_OUTPUT_FILE:-<unset>}"
-print_info "[TRACE] SCAN_ENCODING     : ${SCAN_ENCODING:-<unset>}"
-_TRACE_ENV_FILE="$SCRIPTS_DIR/../config/.env"
-if [ -f "$_TRACE_ENV_FILE" ]; then
-    print_info "[TRACE] $_TRACE_ENV_FILE (mtime: $(ls -l "$_TRACE_ENV_FILE" | awk '{print $6, $7, $8}')):"
-    grep -E '^(SCAN_|DBB_CWD|SANDBOX_DIR)' "$_TRACE_ENV_FILE" | while IFS= read -r l; do
-        print_info "[TRACE]   .env> $l"
-    done
-else
-    print_info "[TRACE] .env not found: $_TRACE_ENV_FILE"
-fi
-print_info "[TRACE] BUILD_LIST file   : ${BUILD_LIST:-<empty>}"
-if [ -n "${BUILD_LIST:-}" ] && [ -f "$BUILD_LIST" ]; then
-    print_info "[TRACE] BUILD_LIST content (first 20 lines):"
-    head -20 "$BUILD_LIST" | while IFS= read -r l; do
-        print_info "[TRACE]   list> $l"
-    done
-else
-    print_info "[TRACE] BUILD_LIST file does not exist"
-fi
-print_info "[TRACE] SCAN_SOURCE_FOLDER exists: $([ -d "${SCAN_SOURCE_FOLDER:-}" ] && echo yes || echo NO)"
-print_info "[TRACE] Command: zcodescan -sfl \"$BUILD_LIST\" -if \"${SCAN_SOURCE_FOLDER}\" -cf \"${SCAN_CONFIG_FILE}\" -of \"${SCAN_OUTPUT_FILE}\" -rf \"${SCAN_RULE_FILE}\" -et sonarqube,junit -e \"${SCAN_ENCODING}\""
-print_info "[TRACE] ---- end trace ----"
+## -------------------------
+## TRACE: where do the scan paths come from?
+## -------------------------
+#print_info "[TRACE] ---- ZCodeScan input trace ----"
+#print_info "[TRACE] script            : ${BASH_SOURCE[0]}"
+#print_info "[TRACE] SCRIPTS_DIR       : ${SCRIPTS_DIR}"
+#print_info "[TRACE] PWD               : $(pwd)"
+#print_info "[TRACE] EXECUTION_MODE    : ${EXECUTION_MODE:-<unset>}"
+#print_info "[TRACE] BANK_DIR          : ${BANK_DIR:-<unset>}"
+#print_info "[TRACE] BOZ_REPO_DIR      : ${BOZ_REPO_DIR:-<unset>}"
+#print_info "[TRACE] SANDBOX_DIR       : ${SANDBOX_DIR:-<unset>}"
+#print_info "[TRACE] SCAN_SOURCE_FOLDER: ${SCAN_SOURCE_FOLDER:-<unset>}"
+#print_info "[TRACE] SCAN_CWD_FOLDER   : ${SCAN_CWD_FOLDER:-<unset>}"
+#print_info "[TRACE] SCAN_RULE_FILE    : ${SCAN_RULE_FILE:-<unset>}"
+#print_info "[TRACE] SCAN_CONFIG_FILE  : ${SCAN_CONFIG_FILE:-<unset>}"
+#print_info "[TRACE] SCAN_OUTPUT_FILE  : ${SCAN_OUTPUT_FILE:-<unset>}"
+#print_info "[TRACE] SCAN_ENCODING     : ${SCAN_ENCODING:-<unset>}"
+#_TRACE_ENV_FILE="$SCRIPTS_DIR/../config/.env"
+#if [ -f "$_TRACE_ENV_FILE" ]; then
+#    print_info "[TRACE] $_TRACE_ENV_FILE (mtime: $(ls -l "$_TRACE_ENV_FILE" | awk '{print $6, $7, $8}')):"
+#    grep -E '^(SCAN_|DBB_CWD|SANDBOX_DIR)' "$_TRACE_ENV_FILE" | while IFS= read -r l; do
+#        print_info "[TRACE]   .env> $l"
+#    done
+#else
+#    print_info "[TRACE] .env not found: $_TRACE_ENV_FILE"
+#fi
+#print_info "[TRACE] BUILD_LIST file   : ${BUILD_LIST:-<empty>}"
+#if [ -n "${BUILD_LIST:-}" ] && [ -f "$BUILD_LIST" ]; then
+#    print_info "[TRACE] BUILD_LIST content (first 20 lines):"
+#    head -20 "$BUILD_LIST" | while IFS= read -r l; do
+#        print_info "[TRACE]   list> $l"
+#    done
+#else
+#    print_info "[TRACE] BUILD_LIST file does not exist"
+#fi
+#print_info "[TRACE] SCAN_SOURCE_FOLDER exists: $([ -d "${SCAN_SOURCE_FOLDER:-}" ] && echo yes || echo NO)"
+#print_info "[TRACE] Command: zcodescan -sfl \"$BUILD_LIST\" -if \"${SCAN_SOURCE_FOLDER}\" -cf \"${SCAN_CONFIG_FILE}\" -of \"${SCAN_OUTPUT_FILE}\" -rf \"${SCAN_RULE_FILE}\" -et sonarqube,junit -e \"${SCAN_ENCODING}\""
+#print_info "[TRACE] ---- end trace ----"
 
 
 
