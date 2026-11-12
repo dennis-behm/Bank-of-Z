@@ -139,8 +139,8 @@ print_info "Starting wazideploy-generate for BankZ"
 : > "${OUTPUT_FOLDER}/wazideploy-generate-bankz.console.log"
 CMD="wazideploy-generate \
  --deploymentPlanName $APP_BASE_NAME \
- --deploymentMethod $DEPLOY_DEPLOYMENT_METHOD_$timestamp \
- --deploymentPlanVersion $APP_FULL_VERSION \ 
+ --deploymentMethod $DEPLOY_DEPLOYMENT_METHOD \
+ --deploymentPlanVersion $APP_FULL_VERSION_$timestamp \ 
  --deploymentPlan $OUTPUT_FOLDER/deploymentPlan-bankz.yaml \
  --deploymentPlanReport $OUTPUT_FOLDER/deploymentPlanReport-bankz.html \
  --packageInputFile $PACKAGE_URL"
