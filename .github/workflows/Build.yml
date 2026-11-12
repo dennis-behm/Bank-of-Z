@@ -13,7 +13,7 @@ on:
 
 
 env:
-    uniqueWorkspaceId: ${{ vars.ZOS_SANDBOX_DIR }}/pipeline/${{ github.repository }}/${{ github.ref_name }}/build_b${{ github.run_number }} # adding a b before the number
+    uniqueWorkspaceId: ${{ vars.ZOS_SANDBOX_DIR }}/pipeline/${{ github.repository }}/${{ github.ref_name }}/build_b${{ github.run_number }} # adding an b before the number
     # to avoid an error caused by repeated build numbers
     buildIdentifier: build_b${{ github.run_number }}
     pipelineType: ${{ inputs.pipelineType }}
@@ -45,10 +45,32 @@ jobs:
         needs:
          - Setup
         runs-on: self-hosted
+        permissions:
+            contents: read
+            actions: read          # required by code-coverage-report-action to store/download coverage artifacts
+            checks: write          # required by action-junit-report to create the check run
+            pull-requests: read    # required by upload-code-coverage (resolves PR context via gh CLI)
+            code-quality: write    # required by upload-code-coverage to upload coverage data
         steps:
+          - name: scan-code-task
+            run: |
+                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh scan && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp -R ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/zcodescan/. ${{ env.uniqueWorkspaceId }}/logs"
+
           - name: execute-build-task
             run: |
-                ssh ${{ env.zosHost }} ". ./.profile && cd ${{ env.uniqueWorkspaceId }}/${{ env.application }} && bash .setup/pipeline-common.sh build && mkdir -p ${{ env.uniqueWorkspaceId }}/logs && cp /usr/local/sandboxes/bank-of-z/logs/dbb/*.* ${{ env.uniqueWorkspaceId }}/logs"
+                ssh ${{ env.zosHost }} << 'EOF'
+                  . ./.profile
+                  cd ${{ env.uniqueWorkspaceId }}/${{ env.application }}
+                  rm -rf /var/debug/code_coverage_collector_output/IBMUSER/* 2>/dev/null || true
+                  bash .setup/pipeline-common.sh build
+                  BUILD_RC=$?
+                  mkdir -p ${{ env.uniqueWorkspaceId }}/logs
+                  cp -R ${{ env.uniqueWorkspaceId }}/${{ env.application }}/logs/. ${{ env.uniqueWorkspaceId }}/logs 2>/dev/null || true
+                  mkdir -p ${{ env.uniqueWorkspaceId }}/logs/cc
+                  cp -R /var/debug/code_coverage_collector_output/IBMUSER/*CCC*/. ${{ env.uniqueWorkspaceId }}/logs/cc 2>/dev/null || true
+                  chtag -tc UTF-8 ${{ env.uniqueWorkspaceId }}/logs/cc/*.xml 2>/dev/null || true
+                  exit $BUILD_RC
+                EOF
 
           - name: prepare-logs
             if: ${{ always() }}
@@ -58,7 +80,70 @@ jobs:
                 mkdir "${{ runner.temp }}/build-logs"
                 sftp ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/*.tar "${{ runner.temp }}/build-logs"
                 tar -xvf "${{ runner.temp }}/build-logs/logs.tar" -C "${{ runner.temp }}/build-logs"
+                # the unit test runner writes classname="<PROGRAM>.unknown"; drop the ".unknown" suffix for the test report
+                find "${{ runner.temp }}/build-logs" -name '*.eqatstr_junit.xml' -exec sed -i 's/\(classname="[^"]*\)\.unknown"/\1"/g' {} +
         
+          - name: publish-test-results
+            if: ${{ always() }}
+            uses: mikepenz/action-junit-report@v6
+            with:
+                report_paths: ${{ runner.temp }}/build-logs/**/*.eqatstr_junit.xml       # JUnit XML files from the unit test / scan tasks
+                check_name: Build Test Results
+                detailed_summary: true                                     # Render per-test results on the job summary page
+                include_passed: true
+                require_tests: false                                       # Do not fail if no JUnit files were produced
+                fail_on_failure: false                                     # Build task already determines pipeline status
+
+          - name: checkout-ci-scripts
+            if: ${{ always() }}
+            uses: actions/checkout@v6
+            with:
+                sparse-checkout: .github/scripts
+                sparse-checkout-cone-mode: true
+
+          - name: locate-coverage-report
+            id: coverage
+            run: |
+                command -v gh >/dev/null || { echo "gh CLI is not installed on this runner"; exit 1; }
+                # the Cobertura files are copied from z/OS into build-logs/cc by the build task
+                # there may be several reports for the same file; merge them into a single report (hits are summed per line)
+                # code-coverage-report-action requires the file to be inside $GITHUB_WORKSPACE
+                mkdir -p "$GITHUB_WORKSPACE/coverage"
+                rm -f "$GITHUB_WORKSPACE"/coverage/*.xml
+                if [ -d "${{ runner.temp }}/build-logs" ] && [ -n "$(find "${{ runner.temp }}/build-logs" -name '*CCCOBERTURA.xml' -print -quit 2>/dev/null)" ]; then
+                    python3 .github/scripts/merge-cobertura.py "${{ runner.temp }}/build-logs" "$GITHUB_WORKSPACE/coverage/cobertura.xml"
+                    echo "file=coverage/cobertura.xml" >> "$GITHUB_OUTPUT"
+                    echo "found=true" >> "$GITHUB_OUTPUT"
+                else
+                    echo "No Cobertura report found"
+                    echo "found=false" >> "$GITHUB_OUTPUT"
+                fi
+          
+          #- name: upload-code-coverage
+          #  uses: actions/upload-code-coverage@v1
+          #  with:
+          #      file: ${{ steps.coverage.outputs.file }}
+          #      language: Java
+          #      label: code-coverage/jacoco
+          #      fail-on-error: false
+          
+          - name: code-coverage-summary-report
+            if: steps.coverage.outputs.found == 'true'
+            uses: clearlyip/code-coverage-report-action@v7.0     # node24; replaces 5monkeys/cobertura-action (node20, unmaintained)
+            with:
+                 filename: ${{ steps.coverage.outputs.file }}
+                 overall_coverage_fail_threshold: 0
+                 file_coverage_error_min: 25
+                 file_coverage_warning_max: 50
+
+          - name: publish-zcodescan-summary
+            if: ${{ always() }}
+            run: |
+                report=$(find "${{ runner.temp }}/build-logs" -name 'zcs_export_sonarqube.json' | head -n 1)
+                if [ -z "$report" ]; then echo "No ZCodeScan SonarQube report found"; exit 0; fi
+                python3 .github/scripts/zcodescan-summary.py "$report" --repo "${{ github.repository }}" --sha "${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+
+
           - name: upload-build-logs
             if: ${{ always() }}
             uses: actions/upload-artifact@v7
