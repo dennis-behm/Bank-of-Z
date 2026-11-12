@@ -48,5 +48,18 @@
         "dataFolder": "/u/ibmuser/wd_evidences",
         "indexFolder": "/u/ibmuser/wd_evidences_index",
         "executablePath": "/global/opt/pyenv/gdp/bin/wazideploy-evidence",
+    },
+    "files.exclude": {
+        ".sec*": true,
+        ".zdx*": true,
+        "*.pre*": true,
+        "**/.setup": true,
+        "**/application-conf": true,
+        "**/dev": true,
+        "**/scripts": true,
+        "DETECT*": true,
+        "renovate.json": true,
+        "**/.edt*": true,
+        "**/.zopen*": true
     }
 }

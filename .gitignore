@@ -37,3 +37,6 @@ scripts/update-frontend-file-zos.sh
 .bobz
 .zopeneditor/
 zos-downloads/
+
+# Bob Z Extension - Local data dictionary
+DD.json

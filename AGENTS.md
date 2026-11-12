@@ -93,9 +93,14 @@ Rules config: `zcodescan/zcodescan-rules.yaml`. Notable enforced rules:
 
 **All commits MUST be signed off** (`git commit -s -m "message"`). DCO checks are enforced on PRs. Use `git commit --amend -s --no-edit` to fix the last commit if you forgot.
 
-## Data Dictionary
+## Data Dictionary Location
 
-No `bobz/DD.json` exists yet — data dictionary has not been generated for this workspace.
+The data dictionary for this project is located at:
+
+- `/Users/dennisbehm/git/webinar/Bank-of-Z/bobz/DD.json`
+
+This file contains variable descriptions and business context for COBOL or PL/I programs.
+Always reference this file when analyzing or modifying COBOL or PL/I code.
 
 ## Technical Documentation
 

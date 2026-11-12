@@ -130,7 +130,7 @@ profiles:
             .zopeneditor/grub_client execute --zoweProfile ${defaultZoweProfile}
             --remoteWorkspace ${ZOS_WORKSPACE}/${application}
             --command ". /u/ibmuser/.profile && $DBB_HOME/bin/dbb build user --hlq ${dbbHlq}
-            --errPrefix ${errPrefix} ${currentProgram}" --verbose
+            --errPrefix ${errPrefix} --debug ${currentProgram}" --verbose
       - results:
           logFilePatterns:
             - "${application}/logs/*.log"
