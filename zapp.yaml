@@ -50,6 +50,7 @@ profiles:
           - SYS1.PROCLIB # Required: Procedure libraries
         userLibraries:
           # - BANKZ.V0R1M0.LOAD # Application load libraries
+          - IBMUSER.BOZ.UB.LOAD
           - BANKZ.V0R1M0.LOADLIB
           - BANKZ.V0R1M0.LOAD
           - BANKZ.V0R1M0.COPY
@@ -125,9 +126,11 @@ profiles:
             .zopeneditor/grub_client gitBundle --zoweProfile ${defaultZoweProfile}
             --remoteWorkspace ${ZOS_WORKSPACE} --verbose
       - build:
-          remoteCommandShell: >
-              $DBB_HOME/bin/dbb build user --hlq ${dbbHlq} --errPrefix ${errPrefix}
-              ${currentProgram}
+          localCommand: >
+            .zopeneditor/grub_client execute --zoweProfile ${defaultZoweProfile}
+            --remoteWorkspace ${ZOS_WORKSPACE}/${application}
+            --command ". /u/ibmuser/.profile && $DBB_HOME/bin/dbb build user --hlq ${dbbHlq}
+            --errPrefix ${errPrefix} ${currentProgram}" --verbose
       - results:
           logFilePatterns:
             - "${application}/logs/*.log"
