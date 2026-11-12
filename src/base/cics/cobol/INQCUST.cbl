@@ -19,7 +19,7 @@
       * issued.
       *
       ******************************************************************
-      *********** 
+      ************ 
 
        IDENTIFICATION DIVISION.
        PROGRAM-ID. INQCUST.
@@ -408,9 +408,44 @@
                 MOVE RANDOM-CUSTOMER TO REQUIRED-CUST-NUMBER
                 GO TO RCD999
               ELSE
+      *
+      *          Retries exhausted - return a default dummy customer
+      *          record (Micky Mouse) flagged as successful.
+      *
                 MOVE 'Y' TO EXIT-VSAM-READ
-                MOVE 'N' TO INQCUST-INQ-SUCCESS
-                MOVE '1' TO INQCUST-INQ-FAIL-CD
+                MOVE 'Y' TO INQCUST-INQ-SUCCESS
+                MOVE '0' TO INQCUST-INQ-FAIL-CD
+                MOVE 'CUST' TO CUSTOMER-EYECATCHER
+                MOVE REQUIRED-SORT-CODE TO CUSTOMER-SORTCODE
+                MOVE REQUIRED-CUST-NUMBER TO CUSTOMER-NUMBER
+                MOVE 'Mr' TO CUSTOMER-TITLE
+                   OF CUSTOMER-NAME
+                MOVE 'Micky' TO CUSTOMER-FIRST-NAME
+                   OF CUSTOMER-NAME
+                MOVE 'Mouse' TO CUSTOMER-LAST-NAME
+                   OF CUSTOMER-NAME
+                MOVE 18 TO CUSTOMER-DOB-DAY
+                MOVE 11 TO CUSTOMER-DOB-MONTH
+                MOVE 1928 TO CUSTOMER-DOB-YEAR
+                MOVE '555-0100' TO CUSTOMER-PHONE
+                MOVE '1313 Disneyland Drive' TO CUSTOMER-ADDR-LINE1
+                   OF CUSTOMER-ADDRESS
+                MOVE 'Mickey Mouse Clubhouse' TO CUSTOMER-ADDR-LINE2
+                   OF CUSTOMER-ADDRESS
+                MOVE 'Anaheim' TO CUSTOMER-CITY
+                   OF CUSTOMER-ADDRESS
+                MOVE '92802' TO CUSTOMER-POSTCODE
+                   OF CUSTOMER-ADDRESS
+                MOVE 'USA' TO CUSTOMER-COUNTRY
+                   OF CUSTOMER-ADDRESS
+                MOVE 'ACTIVE' TO CUSTOMER-STATUS
+                MOVE 1 TO CUSTOMER-CREATED-DAY
+                MOVE 1 TO CUSTOMER-CREATED-MONTH
+                MOVE 2000 TO CUSTOMER-CREATED-YEAR
+                MOVE 750 TO CUSTOMER-CREDIT-SCORE
+                MOVE 1 TO CUSTOMER-CS-REVIEW-DAY
+                MOVE 1 TO CUSTOMER-CS-REVIEW-MONTH
+                MOVE 2030 TO CUSTOMER-CS-REVIEW-YEAR
                 GO TO RCD999
               END-IF
            END-IF.
