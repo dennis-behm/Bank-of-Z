@@ -19,6 +19,9 @@ set -eu
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPTS_DIR/../lib/utilities.sh"
 source "$SCRIPTS_DIR/../lib/colors.sh"
+if [ -z "${SCAN_CONFIG_FILE:-}" ]; then
+    source "$SCRIPTS_DIR/../config/setenv.sh"
+fi
 
 exec > >(while IFS= read -r line; do
     line="${line%"${line##*[![:space:]]}"}"
@@ -81,17 +84,8 @@ trap finalize_results EXIT
 # =========================
 print_info "Running DBB in preview mode to get the list of sources to scan"
 
-bash "$SCRIPTS_DIR/../tasks/task-dbb-build.sh" preview 2>&1 | tee "$TMP_LOG" | while read -r line
-do
-    case "$line" in
-        ">"*)
-            print_info "${line#> }"
-            ;;
-        *)
-            print_info "$line"
-            ;;
-    esac
-done
+# Output is captured in $TMP_LOG for parsing below, but not printed
+bash "$SCRIPTS_DIR/../tasks/task-dbb-build.sh" preview > "$TMP_LOG" 2>&1 || true
 
 if grep -q "ERROR" "$TMP_LOG"; then
     print_error "DBB build failed"
@@ -105,6 +99,34 @@ fi
 
 BUILD_LIST=$(sed -n 's/.*\[BUILD-LIST\][[:space:]]*//p' "$TMP_LOG" | tail -1)
 
+# Exclude test sources (any path containing a "tests" folder) from the scan.
+# The original DBB build list is left untouched; a filtered copy is scanned.
+if [ -n "${BUILD_LIST:-}" ] && [ -f "$BUILD_LIST" ]; then
+    FILTERED_BUILD_LIST="${BUILD_LIST%.txt}_scan.txt"
+    : > "$FILTERED_BUILD_LIST"
+    while IFS= read -r src || [ -n "$src" ]; do
+        [ -z "$src" ] && continue
+        case "$src" in
+            tests/*|*/tests/*)
+                print_info "Omitted from scan (tests folder): $src"
+                ;;
+            *)
+                echo "$src" >> "$FILTERED_BUILD_LIST"
+                ;;
+        esac
+    done < "$BUILD_LIST"
+
+    if [ ! -s "$FILTERED_BUILD_LIST" ]; then
+        print_info "No files left to scan after excluding tests - nothing to scan"
+        exit 0
+    fi
+    BUILD_LIST="$FILTERED_BUILD_LIST"
+fi
+
+# The DBB build list contains paths relative to the DBB workspace, i.e. the
+# parent directory of the repository (e.g. "Bank-of-Z/src/base/..."). Run the
+# scan from there instead of the static sandbox path from config.yaml.
+SCAN_CWD_FOLDER="$(dirname "${BOZ_REPO_DIR}")"
 cd "${SCAN_CWD_FOLDER}"
 source "${SCAN_PYENV_ACTIVATE_PATH}"
 
@@ -118,6 +140,46 @@ rm -f ./*.log
 mkdir -p "$LOG_DIR"
 
 print_info "Starting ZCodeScan analysis ..."
+## -------------------------
+## TRACE: where do the scan paths come from?
+## -------------------------
+#print_info "[TRACE] ---- ZCodeScan input trace ----"
+#print_info "[TRACE] script            : ${BASH_SOURCE[0]}"
+#print_info "[TRACE] SCRIPTS_DIR       : ${SCRIPTS_DIR}"
+#print_info "[TRACE] PWD               : $(pwd)"
+#print_info "[TRACE] EXECUTION_MODE    : ${EXECUTION_MODE:-<unset>}"
+#print_info "[TRACE] BANK_DIR          : ${BANK_DIR:-<unset>}"
+#print_info "[TRACE] BOZ_REPO_DIR      : ${BOZ_REPO_DIR:-<unset>}"
+#print_info "[TRACE] SANDBOX_DIR       : ${SANDBOX_DIR:-<unset>}"
+#print_info "[TRACE] SCAN_SOURCE_FOLDER: ${SCAN_SOURCE_FOLDER:-<unset>}"
+#print_info "[TRACE] SCAN_CWD_FOLDER   : ${SCAN_CWD_FOLDER:-<unset>}"
+#print_info "[TRACE] SCAN_RULE_FILE    : ${SCAN_RULE_FILE:-<unset>}"
+#print_info "[TRACE] SCAN_CONFIG_FILE  : ${SCAN_CONFIG_FILE:-<unset>}"
+#print_info "[TRACE] SCAN_OUTPUT_FILE  : ${SCAN_OUTPUT_FILE:-<unset>}"
+#print_info "[TRACE] SCAN_ENCODING     : ${SCAN_ENCODING:-<unset>}"
+#_TRACE_ENV_FILE="$SCRIPTS_DIR/../config/.env"
+#if [ -f "$_TRACE_ENV_FILE" ]; then
+#    print_info "[TRACE] $_TRACE_ENV_FILE (mtime: $(ls -l "$_TRACE_ENV_FILE" | awk '{print $6, $7, $8}')):"
+#    grep -E '^(SCAN_|DBB_CWD|SANDBOX_DIR)' "$_TRACE_ENV_FILE" | while IFS= read -r l; do
+#        print_info "[TRACE]   .env> $l"
+#    done
+#else
+#    print_info "[TRACE] .env not found: $_TRACE_ENV_FILE"
+#fi
+#print_info "[TRACE] BUILD_LIST file   : ${BUILD_LIST:-<empty>}"
+#if [ -n "${BUILD_LIST:-}" ] && [ -f "$BUILD_LIST" ]; then
+#    print_info "[TRACE] BUILD_LIST content (first 20 lines):"
+#    head -20 "$BUILD_LIST" | while IFS= read -r l; do
+#        print_info "[TRACE]   list> $l"
+#    done
+#else
+#    print_info "[TRACE] BUILD_LIST file does not exist"
+#fi
+#print_info "[TRACE] SCAN_SOURCE_FOLDER exists: $([ -d "${SCAN_SOURCE_FOLDER:-}" ] && echo yes || echo NO)"
+#print_info "[TRACE] Command: zcodescan -sfl \"$BUILD_LIST\" -if \"${SCAN_SOURCE_FOLDER}\" -cf \"${SCAN_CONFIG_FILE}\" -of \"${SCAN_OUTPUT_FILE}\" -rf \"${SCAN_RULE_FILE}\" -et sonarqube,junit -e \"${SCAN_ENCODING}\""
+#print_info "[TRACE] ---- end trace ----"
+
+
 
 PYTHONUNBUFFERED=1 zcodescan \
   -sfl "$BUILD_LIST" \

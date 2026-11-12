@@ -1,0 +1,88 @@
+---
+#
+# Licensed materials - Property of IBM
+# 5900-BBG Copyright IBM Corp. 2026
+# All rights reserved
+# US Government users restricted rights  -  Use, duplication or
+# disclosure restricted by GSA ADP schedule contract with IBM Corp.
+#
+####################################################################
+# EDT V3 Unit Test Case language configuration
+#
+# Processes *.test.cbl files produced by IBM Test Accelerator for Z.
+#
+# The EDT CLI handles compilation, link-editing, and execution of the
+# test case in a single invocation:
+#
+#   edt --unittest run --testcase <path> --userLibrary <loadlib> [options]
+#
+# Required variables (no defaults ? must be supplied by the user):
+#   EDTInstallDir   Absolute z/OS Unix path to the EDT CLI installation directory.
+#                   The 'edt' executable is expected at ${EDTInstallDir}/bin/edt.
+#                   e.g. /usr/lpp/IBM/debug/test-cli/bin/edt
+#   userLibrary     Fully-qualified z/OS load library containing the
+#                   Program Under Test.  e.g. TEAM.APP.LOAD
+#
+# Optional variables (defaults provided below):
+#   EDTOutput       z/OS Unix path for results (JUnit XML, JSON, etc.).
+#                   Defaults to ${LOGS}.
+#   EDTTimeout      Maximum execution time in seconds. Default: 120.
+#
+# Global debug dataset variables (defined in Languages.yaml):
+#   SEQAMOD         IBM z/OS Debugger load library (SEQAMOD).
+####################################################################
+
+version: 1.0.3
+tasks:
+  # EDT V3 Cobol Unit Test language task
+  - language: EDTCobolUnitTestCase
+
+    # Source file association patterns
+    sources:
+      - "**/**.test.cbl"
+
+    # Overridable variables
+    variables:
+
+      # Absolute z/OS Unix path to the EDT CLI installation directory.
+      - name: EDTInstallDir
+        value: /u/ibmuser/taz-edt-cli/test-cli
+
+      # Fully-qualified z/OS load library containing the Program Under Test.
+      - name: userLibrary
+        value: "${HLQ}.LOAD,BANKZ.V0R1M0.LOADLIB,BANKZ.V0R1M0.LOAD,BANKZ.V0R1M0.COPY"
+
+      # Output directory for EDT results (JUnit XML, JSON reports).
+      # Defaults to the zBuilder logs directory for this build.
+      - name: EDTOutput
+        value: ${LOGS}
+
+    # Steps executed for each *.test.cbl file
+    steps:
+
+      # ----------------------------------------------------------------
+      # Compile, link-edit, and execute the test case via the EDT CLI.
+      #
+      # ${FILE}     workspace-relative path to the .test.cbl source file
+      #             (resolved relative to workingDirectory = ${WORKSPACE})
+      # ${SEQAMOD}  IBM z/OS Debugger load library  (defined in Languages.yaml)
+      #
+      # Results are written to ${EDTOutput}
+      # ----------------------------------------------------------------
+      - step: EDT-CLI
+        comment: Executing testcase...
+        type: unix
+        command: "${EDTInstallDir}/bin/edt"
+        options:
+          - "unittest run"
+          - "--testcase ${FILE}"
+          - "--userLibrary ${userLibrary}"
+          - "--dteLibrary ${SEQAMOD}"
+          - "--output ${EDTOutput}" # redirect output to zBuilder LOGS directory
+          - "--junit" # produce report in junit format  
+          - "--no-color"
+          - "--codeCoverage"
+          - "--quiet"
+          #- "--timeout 120"
+        workingDirectory: "${WORKSPACE}"
+        maxRC: 0

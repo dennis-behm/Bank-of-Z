@@ -22,6 +22,9 @@ set -eu
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPTS_DIR/../lib/utilities.sh"
 source "$SCRIPTS_DIR/../lib/colors.sh"
+if [ -z "${SANDBOX_DIR:-}" ]; then
+    source "$SCRIPTS_DIR/../config/setenv.sh"
+fi
 
 exec > >(while IFS= read -r line; do
     line="${line%"${line##*[![:space:]]}"}"
@@ -39,7 +42,7 @@ if [ -f "$DBB_CONFG_HOME/bin/dbb" ]; then
 fi
 
 export PATH="$JAVA_HOME/bin:$DBB_HOME/bin:$PATH"
-export GRADLE_USER_HOME="$SANDBOX_DIR/../.gradle"
+export GRADLE_USER_HOME="$SANDBOX_DIR/.gradle"
 export GRADLE_OPTS="-Dfile.encoding=UTF-8"
 export GRADLE_DAEMON_BIND_ADDRESS=127.0.0.1
 
@@ -59,7 +62,7 @@ finalize_results() {
     mkdir -p ${DBB_LOG_FOLDER}
 
     if [ -f "$TMP_LOG" ]; then
-        cp "$TMP_LOG" "${DBB_LOG_FOLDER}/dbb-build-console.log" 2>/dev/null || true
+        cp "$TMP_LOG" "${DBB_LOG_FOLDER}/dbb-build.console.log" 2>/dev/null || true
     fi
 
     LOG_TAR="${DBB_LOG_FOLDER}/dbb-build-log.tar"
@@ -67,10 +70,9 @@ finalize_results() {
     if ls logs/*.log >/dev/null 2>&1; then
         chtag -tc ISO8859-1 logs/*.log
         tar cf "$LOG_TAR" logs  2>/dev/null || true
-        mv -f logs ${DBB_LOG_FOLDER}
     else
-        echo "No DBB log files found" > ${DBB_LOG_FOLDER}/dbb-build-console.log
-        tar cf "$LOG_TAR" ${DBB_LOG_FOLDER}/dbb-build-console.log 2>/dev/null || true
+        echo "No DBB log files found" > ${DBB_LOG_FOLDER}/dbb-build.console.log
+        tar cf "$LOG_TAR" ${DBB_LOG_FOLDER}/dbb-build.console.log 2>/dev/null || true
     fi
 
     print_result "[LOG-PATH] $LOG_TAR"
@@ -105,6 +107,12 @@ else
     fi
 
     BUILD_TYPE="pipeline"
+
+    if [ -n "$APP_FULL_VERSION" ]; then
+        timestamp=$(date +%F_%H-%M-%S)
+        BUILD_OPTIONS="${BUILD_OPTIONS} --build-id ${APP_FULL_VERSION}-${timestamp}"
+
+    fi
 fi
 
 # =========================
@@ -120,7 +128,9 @@ set -e
 python "$SCRIPTS_DIR/../lib/render_template.py" --configFile $CONFIG_FILE \
     --templateFile "$SCRIPTS_DIR/../build/datasets.yaml.j2"  --outputFile "$SCRIPTS_DIR/../build/datasets.yaml"
 
-dbb build "$BUILD_TYPE" --debug --hlq "${APP_HLQ}.DBB" --log-encoding ISO8859-1 $BUILD_OPTIONS --config "$DBB_APP_CONF" 2>&1 | tee "$TMP_LOG" | while read -r line
+print_info "Executing: dbb build \"$BUILD_TYPE\" --debug --verbose --hlq \"${APP_HLQ}.DBB\" --log-encoding ISO8859-1 $BUILD_OPTIONS --config \"$DBB_APP_CONF\""
+
+dbb build "$BUILD_TYPE" --debug --verbose --hlq "${APP_HLQ}.DBB" --log-encoding ISO8859-1 $BUILD_OPTIONS --config "$DBB_APP_CONF" 2>&1 | tee "$TMP_LOG" | while read -r line
 do
     case "$line" in
         ">"*)
@@ -152,8 +162,6 @@ print_result "[BUILD-LIST] ${DBB_LOG_FOLDER}/buildList.txt"
 # Skip packaging if nothing processed
 # =========================
 set +e
-mv $PWD/logs/*.* ${DBB_LOG_FOLDER} >/dev/null 2>&1
-rm -rf "$PWD/logs"
 grep "Total files processed : 0" "$TMP_LOG" >/dev/null 2>&1
 if [ $? -eq 0 ]; then
     print_result "[TAR-PATH] NONE"

@@ -24,6 +24,7 @@ include:
   - file: languages/PLI.yaml
   - file: languages/REXX.yaml
   - file: languages/LinkEdit.yaml
+  - file: languages/EDTCobolUnitTestCase.yaml
 
 ############################################################################ 
 # stage: Languages used to create a reusable list of language configurations
@@ -40,3 +41,4 @@ tasks:
      - PLI            # Defined in PLI.yaml
      - LinkEdit       # Defined in LinkEdit.yaml
      - REXX           # Defined in REXX.yaml
+     - EDTCobolUnitTestCase

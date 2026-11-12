@@ -12,7 +12,7 @@
       * matching on the account number & the account_type.
       *
       * Should there be any issues, the program will abend.
-      *
+      * * ****************
       * Test August
       ******************************************************************
 
@@ -225,7 +225,7 @@
 
       *
       *    Return the ACCOUNT data to the COMMAREA
-      *
+      * ***
 
            IF ACCOUNT-TYPE = SPACES OR LOW-VALUES
       * Trigger pipeline sample     

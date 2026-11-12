@@ -80,11 +80,11 @@ jobs:
             run: |
               rm -rf "${{ runner.temp }}/deploy-logs-${{ env.environmentName }}"
               mkdir "${{ runner.temp }}/deploy-logs-${{ env.environmentName }}"
-              sftp -r ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs-${{ env.environmentName }}/* "\"${{ runner.temp }}/deploy-logs-${{ env.environmentName }}\""
+              sftp -r ${{ env.zosHost }}:${{ env.uniqueWorkspaceId }}/deployPkgDir/deploy-logs-${{ env.environmentName }}/* "${{ runner.temp }}/deploy-logs-${{ env.environmentName }}"
 
           - name: Publish deployment logs
             if: ${{ env.packageType == 'release' }}
-            uses: actions/upload-artifact@v4.0.0
+            uses: actions/upload-artifact@v7
             with:
               path: "${{ runner.temp }}/deploy-logs-${{ env.environmentName }}/"
               name: "artifact-${{ env.environmentName }}" 
