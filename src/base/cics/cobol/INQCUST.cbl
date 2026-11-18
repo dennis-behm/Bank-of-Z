@@ -409,43 +409,26 @@
                 GO TO RCD999
               ELSE
       *
-      *          Retries exhausted - return a default dummy customer
-      *          record (Micky Mouse) flagged as successful.
+      *          Retries exhausted - no customer could be found.
+      *          Return an error state (fail code '1' = customer not
+      *          found) with a blank output record, exactly as is done
+      *          for a dud customer number.
       *
-                MOVE 'Y' TO EXIT-VSAM-READ
-                MOVE 'Y' TO INQCUST-INQ-SUCCESS
-                MOVE '0' TO INQCUST-INQ-FAIL-CD
-                MOVE 'CUST' TO CUSTOMER-EYECATCHER
-                MOVE REQUIRED-SORT-CODE TO CUSTOMER-SORTCODE
                 MOVE REQUIRED-CUST-NUMBER TO CUSTOMER-NUMBER
-                MOVE 'Mr' TO CUSTOMER-TITLE
-                   OF CUSTOMER-NAME
-                MOVE 'Micky' TO CUSTOMER-FIRST-NAME
-                   OF CUSTOMER-NAME
-                MOVE 'Mouse' TO CUSTOMER-LAST-NAME
-                   OF CUSTOMER-NAME
-                MOVE 18 TO CUSTOMER-DOB-DAY
-                MOVE 11 TO CUSTOMER-DOB-MONTH
-                MOVE 1928 TO CUSTOMER-DOB-YEAR
-                MOVE '555-0100' TO CUSTOMER-PHONE
-                MOVE '1313 Disneyland Drive' TO CUSTOMER-ADDR-LINE1
-                   OF CUSTOMER-ADDRESS
-                MOVE 'Mickey Mouse Clubhouse' TO CUSTOMER-ADDR-LINE2
-                   OF CUSTOMER-ADDRESS
-                MOVE 'Anaheim' TO CUSTOMER-CITY
-                   OF CUSTOMER-ADDRESS
-                MOVE '92802' TO CUSTOMER-POSTCODE
-                   OF CUSTOMER-ADDRESS
-                MOVE 'USA' TO CUSTOMER-COUNTRY
-                   OF CUSTOMER-ADDRESS
-                MOVE 'ACTIVE' TO CUSTOMER-STATUS
-                MOVE 1 TO CUSTOMER-CREATED-DAY
-                MOVE 1 TO CUSTOMER-CREATED-MONTH
-                MOVE 2000 TO CUSTOMER-CREATED-YEAR
-                MOVE 750 TO CUSTOMER-CREDIT-SCORE
-                MOVE 1 TO CUSTOMER-CS-REVIEW-DAY
-                MOVE 1 TO CUSTOMER-CS-REVIEW-MONTH
-                MOVE 2030 TO CUSTOMER-CS-REVIEW-YEAR
+                                             OF OUTPUT-DATA
+                MOVE 'Y' TO EXIT-VSAM-READ
+                MOVE 'N' TO INQCUST-INQ-SUCCESS
+                MOVE '1' TO INQCUST-INQ-FAIL-CD
+                MOVE SPACES TO INQCUST-TITLE
+                MOVE SPACES TO INQCUST-FIRST-NAME
+                MOVE SPACES TO INQCUST-LAST-NAME
+                MOVE SPACES TO INQCUST-PHONE
+                MOVE SPACES TO INQCUST-ADDR-LINE1
+                MOVE SPACES TO INQCUST-ADDR-LINE2
+                MOVE SPACES TO INQCUST-CITY
+                MOVE SPACES TO INQCUST-POSTCODE
+                MOVE SPACES TO INQCUST-COUNTRY
+                MOVE SPACES TO INQCUST-STATUS
                 GO TO RCD999
               END-IF
            END-IF.
@@ -543,14 +526,6 @@
                         COMMAREA(ABNDINFO-REC)
               END-EXEC
 
-              DISPLAY 'CUSTOMER DB2 SELECT KEY='
-                  CUSTOMER-KY ' GAVE SQLCODE='
-                  SQLCODE-DISPLAY
-
-              IF WS-V-RETRIED = 'Y'
-                 DISPLAY 'ON A RETRY'
-              END-IF
-
               EXEC CICS ABEND ABCODE('CVR1')
                  CANCEL
               END-EXEC
@@ -601,9 +576,6 @@
              WHEN 'AFCS'
              WHEN 'AFCT'
                MOVE 'Y' TO WS-STORM-DRAIN
-               DISPLAY 'INQCUST: Check-For-Storm-Drain-VSAM: Storm '
-                       'Drain condition (Abend ' MY-ABEND-CODE ') '
-                       'has been met.'
 
                EXEC CICS SYNCPOINT ROLLBACK
                    RESP(WS-CICS-RESP)
@@ -665,10 +637,6 @@
                            COMMAREA(ABNDINFO-REC)
                  END-EXEC
 
-
-                 DISPLAY 'INQCUST: Unable to perform Synpoint Rollback.'
-                 ' Possible Integrity issue following VSAM RLS abend'
-                 ' RESP CODE=' WS-CICS-RESP ' RESP2 CODE=' WS-CICS-RESP2
 
                   EXEC CICS ABEND
                      ABCODE ('HROL')
