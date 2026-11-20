@@ -35,17 +35,7 @@ application:
              value:
                 - "Bank-of-Z/src/base"
 
-    - task: ScannerInit
-      variables:
-        - name: scanners
-          value:
-            - scanner: Dummy
-              extensions: yaml
-            - scanner: EDT # Name of scanner.
-              extensions: "test.cbl" # Comma-separated list of file extensions associated to this scanner.
-              source: groovy/EDTCobolUnitTestCaseScanner.groovy # (Optional) Java or Groovy class that implements the scanner logic.              
-        - name: excludeFileList
-          value: [".*","**/.*","**.java","**.png","**.css","**.js","**.groovy","**.json","**.md","**/LoadData/**"]
+
 
       # Variable overrides for the FullAnalysis task
     - task: FullAnalysis

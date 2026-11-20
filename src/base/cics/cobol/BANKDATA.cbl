@@ -15,7 +15,7 @@
       * Description: Batch program to initialise the data used in the  *
       *              bank application. Datastores populated by         *
       *              this program include CUSTOMER (DB2) and ACCOUNT   *
-      *              (DB2).     Test  3                                *
+      *              (DB2).     Test  5                                *
       *                                                                *
       *                                                                *
       * Input: parm='fffffff,ttttttt,ssssss,rrrrrr'                    *
