@@ -1,8 +1,98 @@
 {
     "$schema": "./zowe.schema.json",
     "profiles": {
-        "bank-of-z": {
+        "esysmvs": {
+            "profiles": {
+                "zosmf": {
+                    "type": "zosmf",
+                    "properties": {
+                        "port": 443
+                    },
+                    "secure": []
+                },
+                "tso": {
+                    "type": "tso",
+                    "properties": { 
+                        "account": "D999",
+                        "regionSize": 8192,
+                        "codePage": "1047",
+                        "logonProcedure": "IKJACCNT"
+                    },
+                    "secure": []
+                },
+                "ssh": {
+                    "type": "ssh",
+                    "properties": {
+                        "port": 22
+                    },
+                    "secure": []
+                },
+                "apa_connection": {
+                    "type": "apa",
+                    "properties": {
+                        "port": 2800,
+                        "keep_alive_seconds": 30,
+                        "report_download_folder": "C:\\Users\\TimMcKeoun\\Documents\\APA_VSCODE",
+                        "rejectUnauthorized": false
+                    },
+                    "secure":[]
+                },
+                "zOpenDebug": {
+                    "type": "zOpenDebug",
+                    "properties": {
+                        "host": "esysmvs.wsclab.washington.ibm.com",
+                        "rejectUnauthorized": false,
+                        "dpsPort": 8143,
+                        "dpsContextRoot": "api/v1",
+                        "dpsSecured": true,
+                        "rdsPort": 8002,
+                        "rdsSecured": false,
+                        "uuid": "d0e26217-e564-4c47-8dd1-8710b043cb7f"
+                    },
+                    "secure": [
+                        "user",
+                        "password"
+                    ]
+                },
+                //"zOpenDebug": {
+                //    "type": "zOpenDebug",
+                //    "properties": {
+                //        "dpsPort": 8143,
+                //        "dpsContextRoot": "api/v1",
+                //        "dpsSecured": true,
+                //        "uuid": "350b2c36-6939-4f65-bb3d-db8901edacb8"
+                //    },
+                //    "secure": []
+                //},
+                "rse": {
+                    "type": "rse",
+                    "properties": {
+                        "port": 6800,
+                        "basePath": "rseapi",
+                        "protocol": "https",
+                        "rejectUnauthorized": false
+                    },
+                    "secure": []
+                },
+                // common properties can be defined in the base profile insread of defining them in every profile
+                "base": {
+                    "type": "base",
+                    "properties": {
+                        "host": "esysmvs.wsclab.washington.ibm.com",
+                        // reject connection if self-signed certificate is used
+                        "rejectUnauthorized": false
+                    },
+                    // this section will be populated once you are prompted for username and password via Zowe Explorer.
+                    "secure": [
+                        "user",
+                        "password"
+                    ]
+                }
+            }
+        },
+        "bankofz": {
             "properties": {
+                "host": "9.47.80.84",
                 "protocol": "https",
                 "rejectUnauthorized": false
             },
@@ -45,18 +135,19 @@
                         "authenticationType": "basic",
                         "rdsPort": 8194,
                         "rdsSecured": true,
-                        "uuid": "05a46db4-b73f-4c81-9f0a-51350d171355"
+                        "uuid": "203b5846-f33f-4958-9e41-7bda554c1f34"
                     }
                 }
             }
         }
     },
     "defaults": {
-        "zosmf": "bank-of-z.zosmf",
-        "ssh": "bank-of-z.ssh",
-        "rse": "bank-of-z.rse",
-        "cics": "bank-of-z.cics",
-        "zOpenDebug": "bank-of-z.zOpenDebug"
+        "zosmf": "esysmvs.zosmf",
+        "tso": "esysmvs.tso",
+        "ssh": "esysmvs.ssh",
+        "zOpenDebug": "esysmvs.zOpenDebug",
+        "rse": "esysmvs.rse",
+        "base": "esysmvs.base"
     },
     "autoStore": true
 }

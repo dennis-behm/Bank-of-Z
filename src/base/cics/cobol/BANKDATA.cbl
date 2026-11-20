@@ -15,7 +15,7 @@
       * Description: Batch program to initialise the data used in the  *
       *              bank application. Datastores populated by         *
       *              this program include CUSTOMER (DB2) and ACCOUNT   *
-      *              (DB2).                                            *
+      *              (DB2).     Test                                   *
       *                                                                *
       *                                                                *
       * Input: parm='fffffff,ttttttt,ssssss,rrrrrr'                    *
@@ -1895,3 +1895,5 @@
                                 BY REFERENCE FC.
       D    DISPLAY TIMESTAMP-FUNCTION ' AT ' DATM-CONV(1:14).
            EXIT.
+
+           
