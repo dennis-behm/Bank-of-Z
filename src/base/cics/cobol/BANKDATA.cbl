@@ -9,7 +9,7 @@
 
       ******************************************************************
       *                                                                *
-      * Title: BANKDATA                                                *
+      * Title: BANKDATA         ADDING A COMMENT                       *
       *                                                                *
       *                                                                *
       * Description: Batch program to initialise the data used in the  *
@@ -1895,5 +1895,7 @@
                                 BY REFERENCE FC.
       D    DISPLAY TIMESTAMP-FUNCTION ' AT ' DATM-CONV(1:14).
            EXIT.
+
+           
 
            
